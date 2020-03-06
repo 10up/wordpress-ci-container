@@ -7,6 +7,9 @@ RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
 
 RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl
 
+####### Update clamav definitions
+RUN /usr/bin/freshclam
+
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
 ENV COMPOSER_VERSION 1.9.3
@@ -44,10 +47,6 @@ RUN gem update --system && \
 
 RUN mkdir /root/.ssh && \
     chmod 700 /root/.ssh
-
-####### Update clamav definitions
-# make sure ClamAV can write to the temp directory
-RUN chown -R 106:109 /var/lib/clamav && chmod 755 /var/lib/clamav && /usr/bin/freshclam
 
 ####### Pantheon
 
