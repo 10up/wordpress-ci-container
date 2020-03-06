@@ -9,11 +9,11 @@ RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
-ENV COMPOSER_VERSION 1.5.2
+ENV COMPOSER_VERSION 1.9.3
 
-RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/composer/getcomposer.org/da290238de6d63faace0343efbdd5aa9354332c5/web/installer \
+RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/composer/getcomposer.org/cb19f2aa3aeaa2006c0cd69a7ef011eb31463067/web/installer \
  && php -r " \
-    \$signature = '669656bab3166a7aff8a7506b8cb2d1c292f042046c5a994c43155c0be6190fa0355160742ab2e1c88d40d5be660b410'; \
+    \$signature = '48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5'; \
     \$hash = hash('SHA384', file_get_contents('/tmp/installer.php')); \
     if (!hash_equals(\$signature, \$hash)) { \
         unlink('/tmp/installer.php'); \
@@ -32,7 +32,7 @@ RUN pip3 install awscli ansible
 
 ######## Specific to building / deploying
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 	apt-get -y install nodejs
 
 RUN npm install -g grunt-cli gulp-cli bower yarn lighthouse serverless
@@ -46,7 +46,8 @@ RUN mkdir /root/.ssh && \
     chmod 700 /root/.ssh
 
 ####### Update clamav definitions
-RUN /usr/bin/freshclam
+# make sure ClamAV can write to the temp directory
+RUN chown -R 106:109 /var/lib/clamav && chmod 755 /var/lib/clamav && /usr/bin/freshclam
 
 ####### Pantheon
 
