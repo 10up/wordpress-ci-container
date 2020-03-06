@@ -1,4 +1,4 @@
-FROM php:7-stretch
+FROM php:7-buster
 
 RUN apt-get update && apt-get install -y curl git subversion openssh-client openssl zlib1g-dev mysql-client rsync build-essential gnupg2 shellcheck vim sshpass libsass-dev python3-pip libpng-dev ruby ruby-dev clamav clamav-freshclam apt-transport-https ca-certificates software-properties-common zlib1g-dev libicu-dev g++
 
