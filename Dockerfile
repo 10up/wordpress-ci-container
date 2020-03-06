@@ -1,6 +1,6 @@
 FROM php:7-buster
 
-RUN apt-get update && apt-get install -y curl git subversion openssh-client openssl zlib1g-dev mysql-client rsync build-essential gnupg2 shellcheck vim sshpass libsass-dev python3-pip libpng-dev ruby ruby-dev clamav clamav-freshclam apt-transport-https ca-certificates software-properties-common zlib1g-dev libicu-dev g++
+RUN apt-get update && apt-get install -y curl git subversion openssh-client openssl zlib1g-dev libzip-dev unzip libssl-dev default-mysql-client rsync gnupg2 shellcheck vim sshpass libsass-dev python3-pip libpng-dev ruby ruby-dev clamav clamav-freshclam apt-transport-https ca-certificates software-properties-common libicu-dev g++
 
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
  && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
