@@ -68,6 +68,12 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
    apt-get install -y docker-ce && \
    apt-get autoremove -y && \
    apt-get clean
+   
+# Testing scripts
+
+COPY scripts/* /10up-scripts/
+RUN chmod +x /10up-scripts/*
+ENV PATH="/10up-scripts:${PATH}"
 
 # Cleanup
 RUN apt-get autoremove -y && apt-get clean
