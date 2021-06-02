@@ -1,19 +1,22 @@
-FROM php:7-stretch
+FROM php:7-buster
 
-RUN apt-get update && apt-get install -y curl git subversion openssh-client openssl zlib1g-dev mysql-client rsync build-essential gnupg2 shellcheck vim sshpass libsass-dev python3-pip libpng-dev ruby ruby-dev clamav clamav-freshclam apt-transport-https ca-certificates software-properties-common zlib1g-dev libicu-dev g++
+RUN apt-get update && apt-get install -y curl git subversion openssh-client openssl zlib1g-dev libzip-dev unzip libssl-dev default-mysql-client rsync gnupg2 shellcheck vim sshpass libsass-dev python3-pip libpng-dev ruby ruby-dev clamav clamav-freshclam apt-transport-https ca-certificates software-properties-common libicu-dev g++
 
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
  && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
 
 RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl
 
+####### Update clamav definitions
+RUN /usr/bin/freshclam
+
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
-ENV COMPOSER_VERSION 1.5.2
+ENV COMPOSER_VERSION 1.9.3
 
-RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/composer/getcomposer.org/da290238de6d63faace0343efbdd5aa9354332c5/web/installer \
+RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/composer/getcomposer.org/cb19f2aa3aeaa2006c0cd69a7ef011eb31463067/web/installer \
  && php -r " \
-    \$signature = '669656bab3166a7aff8a7506b8cb2d1c292f042046c5a994c43155c0be6190fa0355160742ab2e1c88d40d5be660b410'; \
+    \$signature = '48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5'; \
     \$hash = hash('SHA384', file_get_contents('/tmp/installer.php')); \
     if (!hash_equals(\$signature, \$hash)) { \
         unlink('/tmp/installer.php'); \
@@ -32,7 +35,7 @@ RUN pip3 install awscli ansible
 
 ######## Specific to building / deploying
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 	apt-get -y install nodejs
 
 RUN npm install -g grunt-cli gulp-cli bower yarn lighthouse serverless
@@ -44,9 +47,6 @@ RUN gem update --system && \
 
 RUN mkdir /root/.ssh && \
     chmod 700 /root/.ssh
-
-####### Update clamav definitions
-RUN /usr/bin/freshclam
 
 ####### Pantheon
 
