@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#Set default values
+WEBHOOK_URL=""
+TEXT_MESSAGE=""
+PRE_TEXT_MESSAGE=""
+MESSAGE_COLOR=""
+AUTHOR_NAME=""
+AUTHOR_LINK=""
+AUTHOR_ICON=""
+TITLE=""
+TITLE_LINK=""
+
+#Display command usage function##
+exit_usage () {
+    cat <<EOF
+    COMMAND USAGE
+    $0 [-u webhook_url -m text_message] -p pre_text_message -c message_color -a author_name -l author_link -i author_icon -t title -n title_link
+    
+    Author: 10up
+EOF
+    exit 1
+}
+
+#read and process arguments
+while getopts ":u:m:p:c:a:l:i:t:n:" opt
+do
+    case $opt in
+        u )
+            WEBHOOK_URL=$OPTARG
+            if [[ ! $WEBHOOK_URL =~ ^http[s]?://([a-zA-Z0-9_]*\.[a-zA-Z0-9_]*\.[a-zA-Z0-9_]*|[a-zA-Z0-9_]*\.[a-zA-Z0-9_]*)(:[0-9]*)?(/)?[^[:space:]]+$ ]] ; then
+                echo "Invalid URL format"
+                exit 1
+            fi
+        ;;
+        m ) TEXT_MESSAGE=$(echo "$OPTARG" | sed 's/"/\"/g' | sed "s/'/\\'/g") ;;
+        p ) PRE_TEXT_MESSAGE=$(echo "$OPTARG" | sed 's/"/\"/g' | sed "s/'/\\'/g") ;;
+        c ) MESSAGE_COLOR=$OPTARG ;;
+        a ) AUTHOR_NAME=$OPTARG ;;
+        l ) AUTHOR_LINK=$OPTARG ;;
+        i ) AUTHOR_ICON=$OPTARG ;;
+        t ) TITLE=$OPTARG ;;
+        n ) TITLE_LINK=$OPTARG ;;
+        \? ) echo "Invalid option -$OPTARG"
+            exit_usage ;;
+        : ) echo "Option -$OPTARG requires an argument"
+            exit_usage ;;
+    esac
+done
+
+#Display usage if no aptions specified
+if ((OPTIND==1)) ; then
+    exit_usage
+fi
+
+shift $((OPTIND-1))
+
+#Validate if flags -u and -m where specified
+if [ -z "$WEBHOOK_URL" ] || [ -z "$TEXT_MESSAGE" ] ; then
+    echo "flags -u and -m are required"
+    exit 1
+fi
+
+#Display usage if unaccepted characters are typed in
+if [ -n "$1" ]; then
+    exit_usage
+fi
+
+PAYLOAD="{\"attachments\":[{\"color\": \"$MESSAGE_COLOR\", \"pretext\": \"$PRE_TEXT_MESSAGE\", \"author_name\": \"$AUTHOR_NAME\", \"author_link\": \"$AUTHOR_LINK\", \"author_icon\": \"$AUTHOR_ICON\", \"title\": \"$TITLE\", \"title_link\": \"$TITLE_LINK\", \"text\": \"$TEXT_MESSAGE\"}]}"
+
+curl -X POST --data "payload=$PAYLOAD" --silent --insecure "$WEBHOOK_URL"

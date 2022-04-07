@@ -1,0 +1,53 @@
+name: Build Docker image
+
+on:
+  push:
+    branches:
+      - 'trunk'
+  schedule:
+    - cron: '0 4 * * 0'
+
+jobs:
+  build_push_to_dockerhub:
+    runs-on: ubuntu-20.04
+    
+    steps:
+
+      # no need to use actions/checkout with docker/build-push-action
+      # https://github.com/docker/build-push-action
+
+      ## GitHub Action validation testing before starting workflow ##
+
+      - name: Ensure Docker token is present
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        if: ${{ env.DOCKERHUB_TOKEN == '' }}
+        run: |
+          echo "Dockerhub token is not defined in GitHub secrets, exiting run"
+          exit 1
+
+      - name: Ensure Docker username is present
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        if: ${{ env.DOCKERHUB_USERNAME == '' }}
+        run: |
+          echo "Dockerhub username is not defined in GitHub secrets, exiting run"
+          exit 1
+
+      ## Begin workflow ##
+        
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Never use cache with builds, build from scratch for security updates
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: 10up/wordpress-ci:latest
+          no-cache: true
