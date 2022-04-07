@@ -1,79 +1,196 @@
-FROM php:7-stretch
+FROM php:7.4-buster
 
-RUN apt-get update && apt-get install -y curl git subversion openssh-client openssl zlib1g-dev mysql-client rsync build-essential gnupg2 shellcheck vim sshpass libsass-dev python3-pip libpng-dev ruby ruby-dev clamav clamav-freshclam apt-transport-https ca-certificates software-properties-common zlib1g-dev libicu-dev g++
+RUN apt-get update && \
+    apt-get install -y \
+      apt-transport-https \
+      build-essential \
+      ca-certificates \
+      clamav \
+      clamav-freshclam \
+      curl \
+      fonts-liberation \
+      g++ \
+      gconf-service \
+      gettext \
+      git \
+      gnupg2 \
+      jq \
+      lftp \
+      libappindicator1 \
+      libasound2 \
+      libatk1.0-0 \
+      libc6 \
+      libcairo2 \
+      libcups2 \
+      libdbus-1-3 \
+      libexpat1 \
+      libffi-dev \
+      libfontconfig1 \
+      libgcc1 \
+      libgconf-2-4 \
+      libgdk-pixbuf2.0-0 \
+      libglib2.0-0 \
+      libgtk-3-0 \
+      libicu-dev \
+      libnspr4 \
+      libnss3 \
+      libpango-1.0-0 \
+      libpangocairo-1.0-0 \
+      libpng-dev \
+      libsass-dev \
+      libstdc++6 \
+      libx11-6 \
+      libx11-xcb1 \
+      libxcb1 \
+      libxcomposite1 \
+      libxcursor1 \
+      libxdamage1 \
+      libxext6 \
+      libxfixes3 \
+      libxi6 \
+      libxrandr2 \
+      libxrender1 \
+      libxss1 \
+      libxtst6 \
+      libzip-dev \
+      lsb-release \
+      mercurial \
+      default-mysql-client \
+      openssh-client \
+      openssl \
+      python-pip \
+      python3-pip \
+      rsync \
+      ruby \
+      ruby-dev \
+      shellcheck \
+      software-properties-common \
+      sshpass \
+      subversion \
+      vim \
+      wget \
+      xdg-utils \
+      zlib1g-dev && \
+    apt-get autoremove -y && \
+    apt-get clean
 
-RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
- && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
+## Update clamav definitions ##
+# Run here to avoid bugs when run lower in the Dockerfile
 
-RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl
+RUN /usr/bin/freshclam
+
+## set locale properly to en_US.UTF-8
+RUN apt-get update && \
+    apt-get install -y locales && \
+    rm -rf /var/lib/apt/lists/* && \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+ENV LANG en_US.utf8
+
+RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" && \
+    echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
+
+## PHP extensions ##
+RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl sockets mysqli exif
+
+#### Specific to building / deploying ####
+
+## set up NVM and install node ##
+
+ENV NVM_DIR /tmp/.nvm
+RUN mkdir ${NVM_DIR}
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+
+COPY build/install-node.sh /tmp/install-node.sh
+RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh
+COPY .bowerrc /root/.bowerrc
+
+## Compass ##
+
+RUN gem update --system && \
+    gem install compass
+
+## Ansible, awscli, other Python tools ##
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 --no-cache-dir install -r /tmp/requirements.txt
+
+## Composer ##
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
-ENV COMPOSER_VERSION 1.5.2
+ENV COMPOSER_VERSION 1.10.25
 
-RUN curl -s -f -L -o /tmp/installer.php https://raw.githubusercontent.com/composer/getcomposer.org/da290238de6d63faace0343efbdd5aa9354332c5/web/installer \
- && php -r " \
-    \$signature = '669656bab3166a7aff8a7506b8cb2d1c292f042046c5a994c43155c0be6190fa0355160742ab2e1c88d40d5be660b410'; \
-    \$hash = hash('SHA384', file_get_contents('/tmp/installer.php')); \
-    if (!hash_equals(\$signature, \$hash)) { \
-        unlink('/tmp/installer.php'); \
-        echo 'Integrity check failed, installer is either corrupt or worse.' . PHP_EOL; \
-        exit(1); \
-    }" \
- && php /tmp/installer.php --no-ansi --install-dir=/usr/bin --filename=composer --version=${COMPOSER_VERSION} \
- && composer --ansi --version --no-interaction \
- && rm -rf /tmp/* /tmp/.htaccess
+COPY build/install-composer.sh /tmp/install-composer.sh
+RUN /tmp/install-composer.sh && \
+    composer --ansi --version --no-interaction
 
-RUN docker-php-ext-install mysqli
+## Docker ##
 
-####### install python tools like awscli #########
-##### use pip3 to ensure you install into python3
-RUN pip3 install awscli ansible
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    add-apt-repository \
+      "deb [arch=amd64] https://download.docker.com/linux/debian \
+      $(lsb_release -cs) \
+      stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli && \
+    apt-get autoremove -y && \
+    apt-get clean
 
-######## Specific to building / deploying
+## Kubectl ##
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-	apt-get -y install nodejs
+# Install latest version for Kubernetes management
+# this could also be a specific version
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl && \
+    chmod +x ./kubectl && \
+    mv ./kubectl /usr/local/bin/kubectl
 
-RUN npm install -g grunt-cli gulp-cli bower yarn lighthouse serverless
+## Terminus CLI for Pantheon managed hosting ##
 
-######## Compass
-RUN gem update --system && \
-	gem install compass
-######## End Compass
+# Install Terminus (note - standalone PHAR method works and Terminus Installer PHAR does not)
+RUN mkdir ~/terminus && \
+    cd ~/terminus && \
+    curl -L https://github.com/pantheon-systems/terminus/releases/download/`curl --silent "https://api.github.com/repos/pantheon-systems/terminus/releases/latest" | perl -nle'print $& while m#"tag_name": "\K[^"]*#g'`/terminus.phar --output terminus && chmod +x terminus && \
+    ln -s ~/terminus/terminus /usr/local/bin/terminus
+    
+## Azure CLI ##
+
+# https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt
+# prereqs are installed already in above apt command
+
+# Azure CLI adds 1 GB to the Dockerfile, consider removing and installing in
+# pipelines where required
+
+# change the repo var here if container base switches from debian-stretch
+ENV AZ_REPO "buster"
+RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | \
+    gpg --dearmor | \
+    tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null \
+    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \ 
+       tee /etc/apt/sources.list.d/azure-cli.list && \
+    apt-get update && \
+    apt-get install azure-cli && \
+    apt-get autoremove -y && \
+    apt-get clean
+
+#### end of tool installation ####
+
+## CI pipeline scripts and auth ##
+
+COPY scripts/* /custom-scripts/
+RUN chmod +x /custom-scripts/*
+ENV PATH="/custom-scripts:${PATH}"
+
+# Create SSH directory
+# SSH keys for deploys or auth are set in entrypoint.sh
 
 RUN mkdir /root/.ssh && \
     chmod 700 /root/.ssh
 
-####### Update clamav definitions
-RUN /usr/bin/freshclam
-
-####### Pantheon
-
-# Install Terminus
-RUN mkdir ~/terminus && \
-	cd ~/terminus && \
-	curl -O https://raw.githubusercontent.com/pantheon-systems/terminus-installer/master/builds/installer.phar && php installer.phar install
-
-####### End Pantheon
-
-
-# Docker
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
-   add-apt-repository \
-       "deb [arch=amd64] https://download.docker.com/linux/debian \
-       $(lsb_release -cs) \
-       stable" && \
-   apt-get update && \
-   apt-get install -y docker-ce && \
-   apt-get autoremove -y && \
-   apt-get clean
-
-# Cleanup
-RUN apt-get autoremove -y && apt-get clean
+# force CI jobs to source root's .bashrc, which will enable NVM
+ENV BASH_ENV "/root/.bashrc"
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-

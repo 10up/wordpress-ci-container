@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Wrapper script for running a default set of scripts on every deploy
+# All scripts are deployed to the `/custom-scripts/` directory which is also added to PATH, but calling directly
+# just to be sure
+
+# Catch Errors
+set -euo pipefail
+
+# Source all custom scripts with .sh extension
+ALL_SCRIPTS=$(find /custom-scripts -name '*.sh' | awk -F '/' '{ print $3 }')
+for SCRIPT in $ALL_SCRIPTS; do
+    source /custom-scripts/"$SCRIPT"
+done
+
+source /custom-scripts/php-syntax
+source /custom-scripts/virus-scan
+
