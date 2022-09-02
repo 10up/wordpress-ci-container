@@ -41,8 +41,6 @@ jobs:
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.1" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 
-      - name: Set version and latest tags
-
       ## GitHub Action validation testing before starting workflow ##
 
       - name: Ensure Docker token is present
