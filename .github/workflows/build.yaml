@@ -12,7 +12,7 @@ jobs:
   build_push_to_dockerhub:
     strategy:
       matrix:
-        base_container: [php:7.4-buster, php:8.0-buster, php:8.1-buster]
+        base_container: ["php:7.4-buster", "php:8.0-buster", "php:8.1-buster"]
     runs-on: ubuntu-20.04
 
     steps:
