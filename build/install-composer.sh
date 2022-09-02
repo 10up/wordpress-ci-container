@@ -13,7 +13,7 @@ then
     exit 1
 fi
 
-php composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION}
+php composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --${COMPOSER_VERSION}
 RESULT=$?
 rm composer-setup.php
 exit $RESULT
