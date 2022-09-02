@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "trunk"
-      - "feature/add-php-containers-matrix"
   schedule:
     - cron: "0 4 * * 0"
 
@@ -26,7 +25,7 @@ jobs:
       - name: Set PHP 7.4 settings
         if: ${{ matrix.base_container == 'php:7.4-buster' }}
         run: |
-          echo "BUILD_TAGS=10up/wordpress-ci:buildtest,10up/wordpress-ci:php-7.4" >> $GITHUB_ENV
+          echo "BUILD_TAGS=10up/wordpress-ci:latest,10up/wordpress-ci:php-7.4" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=1" >> $GITHUB_ENV
 
       - name: Set PHP 8.0 settings
