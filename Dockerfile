@@ -1,4 +1,6 @@
-FROM php:7.4-buster
+# base image should be a PHP Debian container, such as php:7.4-buster
+ARG PHP_IMG
+FROM $PHP_IMG
 
 RUN apt-get update && \
     apt-get install -y \
@@ -112,14 +114,14 @@ RUN gem update --system && \
 
 ## Ansible, awscli, other Python tools ##
 
-COPY requirements.txt /tmp/requirements.txt
-RUN pip3 --no-cache-dir install -r /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt 
+RUN pip3 install --upgrade pip && pip3 --no-cache-dir install -r /tmp/requirements.txt
 
 ## Composer ##
+ARG COMPOSER_VERSION 1
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_HOME /tmp
-ENV COMPOSER_VERSION 1.10.25
 
 COPY build/install-composer.sh /tmp/install-composer.sh
 RUN /tmp/install-composer.sh && \
@@ -152,26 +154,6 @@ RUN mkdir ~/terminus && \
     cd ~/terminus && \
     curl -L https://github.com/pantheon-systems/terminus/releases/download/`curl --silent "https://api.github.com/repos/pantheon-systems/terminus/releases/latest" | perl -nle'print $& while m#"tag_name": "\K[^"]*#g'`/terminus.phar --output terminus && chmod +x terminus && \
     ln -s ~/terminus/terminus /usr/local/bin/terminus
-    
-## Azure CLI ##
-
-# https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt
-# prereqs are installed already in above apt command
-
-# Azure CLI adds 1 GB to the Dockerfile, consider removing and installing in
-# pipelines where required
-
-# change the repo var here if container base switches from debian-stretch
-ENV AZ_REPO "buster"
-RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | \
-    gpg --dearmor | \
-    tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null \
-    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \ 
-       tee /etc/apt/sources.list.d/azure-cli.list && \
-    apt-get update && \
-    apt-get install azure-cli && \
-    apt-get autoremove -y && \
-    apt-get clean
 
 #### end of tool installation ####
 
