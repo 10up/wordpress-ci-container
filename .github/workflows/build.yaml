@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "trunk"
-      # test branch
       - "feature/add-php-containers-matrix"
   schedule:
     - cron: "0 4 * * 0"
