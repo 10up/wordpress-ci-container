@@ -13,7 +13,14 @@ then
     exit 1
 fi
 
+# Install both composer 1 and 2 under their own paths to support future
+# conditional scripting
+php composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer1-bin --1
+php composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer2-bin --2
+
+# Install a default composer in the standard location, set version in Dockerfile or with --build-arg
 php composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --${COMPOSER_VERSION}
+
 RESULT=$?
 rm composer-setup.php
 exit $RESULT
