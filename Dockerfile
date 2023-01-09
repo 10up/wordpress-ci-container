@@ -72,6 +72,7 @@ RUN apt-get update && \
       vim \
       wget \
       xdg-utils \
+      yamllint \
       zlib1g-dev && \
     apt-get autoremove -y && \
     apt-get clean

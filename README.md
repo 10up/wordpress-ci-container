@@ -20,6 +20,7 @@
 - azure-cli
 - docker-cli
 - terminus
+- yamllint
 
 **npm packages installed:**
 - grunt-cli
