@@ -4,7 +4,7 @@ ruamel.yaml
 yamale
 yq
 python-gitlab
-awesome-codename==1.0.0
-cryptography==2.7
-ansible==2.7.8
-dnspython==1.16.0
+awesome-codename
+cryptography
+ansible==2.11.6
+dnspython
