@@ -60,7 +60,6 @@ RUN apt-get update && \
       default-mysql-client \
       openssh-client \
       openssl \
-      python-pip \
       python3-pip \
       rsync \
       ruby \
@@ -110,13 +109,14 @@ COPY .bowerrc /root/.bowerrc
 
 ## Compass ##
 
-RUN gem update --system && \
-    gem install compass
+RUN gem install compass
 
 ## Ansible, awscli, other Python tools ##
 
 COPY requirements.txt /tmp/requirements.txt 
-RUN pip3 install --upgrade pip && pip3 --no-cache-dir install -r /tmp/requirements.txt
+RUN python3 -m pip -V && \
+    python3 -m pip install -r /tmp/requirements.txt
+#RUN pip3 install --upgrade pip && pip3 --no-cache-dir install -r /tmp/requirements.txt
 
 ## Composer ##
 ARG COMPOSER_VERSION 1
@@ -130,11 +130,11 @@ RUN /tmp/install-composer.sh && \
 
 ## Docker ##
 
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
-    add-apt-repository \
-      "deb [arch=amd64] https://download.docker.com/linux/debian \
-      $(lsb_release -cs) \
-      stable" && \
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+        $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
     apt-get update && \
     apt-get install -y docker-ce-cli && \
     apt-get autoremove -y && \
