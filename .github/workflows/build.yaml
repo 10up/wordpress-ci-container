@@ -23,19 +23,19 @@ jobs:
       # 7.4 is the current "latest" default version and gets this extra tag
       # upon EOL, this should move to 8.0
       - name: Set PHP 7.4 settings
-        if: ${{ matrix.base_container == 'php:7.4-buster' }}
+        if: ${{ matrix.base_container == 'php:7.4-bullseye' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:latest,10up/wordpress-ci:php-7.4" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=1" >> $GITHUB_ENV
 
       - name: Set PHP 8.0 settings
-        if: ${{ matrix.base_container == 'php:8.0-buster' }}
+        if: ${{ matrix.base_container == 'php:8.0-bullseye' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.0" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 
       - name: Set PHP 8.1 settings
-        if: ${{ matrix.base_container == 'php:8.1-buster' }}
+        if: ${{ matrix.base_container == 'php:8.1-bullseye' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.1" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
