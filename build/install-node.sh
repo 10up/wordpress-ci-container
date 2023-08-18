@@ -24,7 +24,8 @@ npm install -g \
     yarn \
     lighthouse \
     serverless \
-    firebase-tools
+    firebase-tools \
+    cypress
 
 npm cache clean --force
 

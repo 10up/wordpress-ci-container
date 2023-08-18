@@ -50,6 +50,7 @@ RUN apt-get update && \
       libxext6 \
       libxfixes3 \
       libxi6 \
+      libxml2-dev \
       libxrandr2 \
       libxrender1 \
       libxss1 \
@@ -93,7 +94,7 @@ RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" && \
     echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
 
 ## PHP extensions ##
-RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl sockets mysqli exif
+RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl sockets mysqli exif soap
 
 #### Specific to building / deploying ####
 
