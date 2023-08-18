@@ -30,6 +30,7 @@
 - lighthouse
 - serverless
 - firebase-tools
+- cypress
 
 Node and npm are managed by the `build/install-node.sh` script.
 
