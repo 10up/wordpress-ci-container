@@ -8,6 +8,9 @@
 
 # TODO: NODE_VERSION variable could be centralized in the Dockerfile for quicker management
 
+# catch Errors
+set -euo pipefail
+
 NODE_VERSION="16"
 
 # set up nvm in this script
