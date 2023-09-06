@@ -104,6 +104,10 @@ ENV NVM_DIR /tmp/.nvm
 RUN mkdir ${NVM_DIR}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 
+# Workaround - Cypress installation
+ENV CYPRESS_CACHE_FOLDER /tmp/cypress/cache
+RUN mkdir -p ${CYPRESS_CACHE_FOLDER} && chmod 777 ${CYPRESS_CACHE_FOLDER}
+
 COPY build/install-node.sh /tmp/install-node.sh
 RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh
 COPY .bowerrc /root/.bowerrc
