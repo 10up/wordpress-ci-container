@@ -11,7 +11,7 @@ jobs:
   build_push_to_dockerhub:
     strategy:
       matrix:
-        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye"]
+        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye"]
     runs-on: ubuntu-20.04
 
     steps:
@@ -22,6 +22,8 @@ jobs:
 
       # 7.4 is the current "latest" default version and gets this extra tag
       # upon EOL, this should move to 8.0
+      # Oct 10, 2023 - NOTE: https://tenup.teamwork.com/app/tasks/19362336 
+      # 7.4 has already reached EoL, we can consider 8.0 as default version now
       - name: Set PHP 7.4 settings
         if: ${{ matrix.base_container == 'php:7.4-bullseye' }}
         run: |
@@ -38,6 +40,12 @@ jobs:
         if: ${{ matrix.base_container == 'php:8.1-bullseye' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.1" >> $GITHUB_ENV
+          echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
+      
+      - name: Set PHP 8.2 settings
+        if: ${{ matrix.base_container == 'php:8.2-bullseye' }}
+        run: |
+          echo "BUILD_TAGS=10up/wordpress-ci:php-8.2" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 
       ## GitHub Action validation testing before starting workflow ##
