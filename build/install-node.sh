@@ -20,6 +20,7 @@ echo "Building node environment for version ${NODE_VERSION}"
 
 nvm install "${NODE_VERSION}"
 
+# Cypress version added since latest supports v18.x and above. Setting Cypress version to 13.1.0 according to cypress changelog for supporting node v16.x releases.
 npm install -g \
     grunt-cli \
     gulp-cli \
@@ -28,7 +29,7 @@ npm install -g \
     lighthouse \
     serverless \
     firebase-tools \
-    cypress
+    cypress@~13.1
 
 npm cache clean --force
 
