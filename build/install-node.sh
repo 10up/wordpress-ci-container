@@ -11,7 +11,8 @@
 # catch Errors
 set -euo pipefail
 
-NODE_VERSION="16"
+# Updated install-node.sh due to the following issue, fixed in a more specific LTS version of 16 (v16.20.2 - gallium):
+NODE_VERSION="v16.20.2"
 
 # set up nvm in this script
 . "$NVM_DIR/nvm.sh"
