@@ -8,7 +8,9 @@
 
 - composer
 - curl
+- gh (Github CLI)
 - git
+- glap (Gitlab CLI)
 - mysql-client
 - nodejs / npm, nvm for management
 - php
@@ -80,6 +82,10 @@ The script allows customizable messages using the following flags: `[-u webhook_
 ### Adding custom scripts
 
 Additional scripts can be added inside the `/custom-scripts` directory for pipeline use. All scripts with `.sh` extension inside the `/custom-scripts` directory can be executed by the `all-scripts` script.
+
+## Node Version
+
+For convenience, `nvm` is installed to easily manage the node version in the CI container. To install a different node version from CI just add a step to execute the command: `nvm install <version>`; you can also execute the command from within a build script.
 
 [![Support Level](https://img.shields.io/badge/support-stable-blue.svg)](#support-level)
 

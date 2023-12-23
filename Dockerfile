@@ -108,8 +108,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | b
 ENV CYPRESS_CACHE_FOLDER /tmp/cypress/cache
 RUN mkdir -p ${CYPRESS_CACHE_FOLDER} && chmod 777 ${CYPRESS_CACHE_FOLDER}
 
+ARG NODE_VERSION=16
 COPY build/install-node.sh /tmp/install-node.sh
-RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh
+RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "${NODE_VERSION}"
 COPY .bowerrc /root/.bowerrc
 
 ## Compass ##
@@ -160,6 +161,24 @@ RUN mkdir ~/terminus && \
     cd ~/terminus && \
     curl -L https://github.com/pantheon-systems/terminus/releases/download/`curl --silent "https://api.github.com/repos/pantheon-systems/terminus/releases/latest" | perl -nle'print $& while m#"tag_name": "\K[^"]*#g'`/terminus.phar --output terminus && chmod +x terminus && \
     ln -s ~/terminus/terminus /usr/local/bin/terminus
+
+## Install Github CLI
+# Using Github API to get the latest release of the https://github.com/cli/cli repository
+RUN curl -L -o /tmp/gh_cli.tar.gz `curl -s https://api.github.com/repos/cli/cli/releases/latest | grep browser_download_url | grep linux_386.tar.gz | cut -d '"' -f 4` && \
+    mkdir -p /tmp/gh_cli && \
+    tar -zxf /tmp/gh_cli.tar.gz -C /tmp/gh_cli --strip-components 1 && \
+    chmod +x /tmp/gh_cli/bin/gh && \
+    mv /tmp/gh_cli/bin/gh /usr/local/bin/gh && \
+    rm -rf /tmp/gh_cli*
+
+## Install Gitlab CLI
+# Using Gitlab API to get the latest release of the https://gitlab.com/gitlab-org/cli project
+RUN curl -L -o /tmp/gl_cli.tar.gz `curl -Ls https://gitlab.com/api/v4/projects/34675721/releases/permalink/latest | jq -c '.assets.links | map(select(.name | contains("Linux_x86_64.tar.gz")).direct_asset_url)' | cut -c 3- | rev | cut -c 3- | rev` && \
+    mkdir -p /tmp/gl_cli && \
+    tar -zxf /tmp/gl_cli.tar.gz -C /tmp/gl_cli --strip-components 1 && \
+    chmod +x /tmp/gl_cli/glab && \
+    mv /tmp/gl_cli/glab /usr/local/bin/glab && \
+    rm -rf /tmp/gl_cli*
 
 #### end of tool installation ####
 
