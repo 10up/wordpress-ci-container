@@ -6,5 +6,5 @@ yq
 python-gitlab
 awesome-codename
 cryptography
-ansible-core==2.11.6
+ansible-core==2.15.8
 dnspython
