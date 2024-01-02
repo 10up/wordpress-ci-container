@@ -11,9 +11,8 @@
 # catch Errors
 set -euo pipefail
 
-# Updated install-node.sh due to the following issue, fixed in a more specific LTS version of 16 (v16.20.2 - gallium):
-# This strategy targets highest LTS for this release, not a speciifc version
-NODE_VERSION="16"
+#Get node version from Docker build argument
+NODE_VERSION="$1"
 
 # set up nvm in this script
 . "$NVM_DIR/nvm.sh"
