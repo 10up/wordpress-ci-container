@@ -62,6 +62,7 @@ grunt --version
 gulp --version
 bower --version
 yarn --version
+wp --version --allow-root
 set +x
 
 exec "$@"

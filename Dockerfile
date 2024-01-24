@@ -134,6 +134,10 @@ COPY build/install-composer.sh /tmp/install-composer.sh
 RUN /tmp/install-composer.sh && \
     composer --ansi --version --no-interaction
 
+## WPCLI ##
+COPY build/install-wpcli.sh /tmp/install-wpcli.sh
+RUN chmod +x /tmp/install-wpcli.sh && /tmp/install-wpcli.sh
+
 ## Docker ##
 
 RUN mkdir -p /etc/apt/keyrings && \
