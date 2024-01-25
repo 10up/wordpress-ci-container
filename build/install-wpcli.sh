@@ -15,6 +15,8 @@ then
 fi
 
 # Install WPCLI  
-chmod +x wp-cli.phar
-mv wp-cli.phar /usr/local/bin/wp
+#chmod +x wp-cli.phar
+mv wp-cli.phar /usr/local/bin/wp-cli.phar
 
+# Add an alias for wp without --allow-root
+echo 'alias wp="php /usr/local/bin/wp-cli.phar --allow-root"' >> ~/.bashrc

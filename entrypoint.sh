@@ -62,7 +62,7 @@ grunt --version
 gulp --version
 bower --version
 yarn --version
-wp --version --allow-root
+php /usr/local/bin/wp-cli.phar --allow-root --version
 set +x
 
 exec "$@"
