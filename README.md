@@ -21,6 +21,7 @@
 - aws-cli
 - azure-cli
 - docker-cli
+- wp-cli
 - terminus
 - yamllint
 
