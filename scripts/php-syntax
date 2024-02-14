@@ -1,3 +1,4 @@
 #!/bin/bash
 
-find . -type f -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 php -l
+# The -P10 option specifies the number of parallel processes (In constrainted CPUs will take approx time for 1 available cpu)
+find . -type f -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 -P10 php -l 1>/dev/null
