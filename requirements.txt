@@ -6,5 +6,9 @@ yq
 python-gitlab
 awesome-codename
 cryptography
+<<<<<<< Updated upstream
 ansible-core==2.11.6
+=======
+ansible-core==2.11.12
+>>>>>>> Stashed changes
 dnspython

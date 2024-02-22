@@ -61,6 +61,7 @@ RUN apt-get update && \
       default-mysql-client \
       openssh-client \
       openssl \
+      python3 \
       python3-pip \
       rsync \
       ruby \
