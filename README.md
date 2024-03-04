@@ -84,6 +84,15 @@ The script allows customizable messages using the following flags: `[-u webhook_
 
 Additional scripts can be added inside the `/custom-scripts` directory for pipeline use. All scripts with `.sh` extension inside the `/custom-scripts` directory can be executed by the `all-scripts` script.
 
+### Custom-scripts - PHP Syntax checker mode switch
+
+In a recent patch for performance enhacnement, stdout and verbose logging withing the php-syntax checking processes was removed. Detailed logging could be enabled via:
+
+1. Setting a `IS_DEBUG_ENABLED` environment variable within your container.
+2. Putting a flag file, "_IS_DEBUG_ENABLED_" with a contents set to `true` within your container's root directory. **_(Not-recommended)_**
+
+This will enable detailed logs in php-syntax checking for debugging, trading off time for logging with increased build time for your environment.
+
 ## Node Version
 
 For convenience, `nvm` is installed to easily manage the node version in the CI container. To install a different node version from CI just add a step to execute the command: `nvm install <version>`; you can also execute the command from within a build script.

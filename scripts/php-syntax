@@ -1,4 +1,14 @@
 #!/bin/bash
 
-# The -P10 option specifies the number of parallel processes (In constrainted CPUs will take approx time for 1 available cpu)
-find . -type f -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 -P10 php -l 1>/dev/null
+# Checking if the IS_DEBUG_ENABLED flag is put in the CI environment or a file with the same name exists
+IS_DEBUG_ENABLED=$( [ -n "$IS_DEBUG_ENABLED" ] && echo "$IS_DEBUG_ENABLED" || [ -e "IS_DEBUG_ENABLED" ] && cat "IS_DEBUG_ENABLED" || echo "" )
+
+if [[ -n "$IS_DEBUG_ENABLED" ]]; then
+    # The -P10 option specifies the number of parallel processes (In constrainted CPUs will take approx time for 1 available cpu)
+    # This will output stdout logs
+    find . -type f -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 -P10 php -l
+else
+    # The -P10 option specifies the number of parallel processes (In constrainted CPUs will take approx time for 1 available cpu)
+    # This will NOT output stdout logs
+    find . -type f -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 -P10 php -l 1>/dev/null
+fi
