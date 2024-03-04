@@ -84,9 +84,11 @@ The script allows customizable messages using the following flags: `[-u webhook_
 
 Additional scripts can be added inside the `/custom-scripts` directory for pipeline use. All scripts with `.sh` extension inside the `/custom-scripts` directory can be executed by the `all-scripts` script.
 
-### Custom-scripts - PHP Syntax checker mode switch
+### Custom-scripts | PHP Syntax - Debug flag for detailed logs
 
-In a recent patch for performance enhacnement, stdout and verbose logging withing the php-syntax checking processes was removed. Detailed logging could be enabled via:
+> In a recent patch for performance enhacnement, stdout and verbose logging withing the php-syntax checking processes was removed. For reference, kindly review [PR#23](https://github.com/10up/wordpress-ci-container/pull/23).
+
+For php-syntax checks detailed logs for debugging issues could be enabled via:
 
 1. Setting a `IS_DEBUG_ENABLED` environment variable within your container.
 2. Putting a flag file, "_IS_DEBUG_ENABLED_" with a contents set to `true` within your container's root directory. **_(Not-recommended)_**
