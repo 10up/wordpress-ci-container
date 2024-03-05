@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Checking if the IS_DEBUG_ENABLED flag is put in the CI environment or a file with the same name exists
-IS_DEBUG_ENABLED=$( [ -n "$IS_DEBUG_ENABLED" ] && echo "$IS_DEBUG_ENABLED" || [ -e "IS_DEBUG_ENABLED" ] && cat "IS_DEBUG_ENABLED" || echo "" )
+# Checking if the IS_DEBUG_ENABLED flag is put in the CI environment
+IS_DEBUG_ENABLED=$( [ -n "$IS_DEBUG_ENABLED" ] && echo "$IS_DEBUG_ENABLED" || echo "" )
 
 if [[ -n "$IS_DEBUG_ENABLED" ]]; then
     # The -P10 option specifies the number of parallel processes (In constrainted CPUs will take approx time for 1 available cpu)

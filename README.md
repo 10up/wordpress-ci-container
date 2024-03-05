@@ -88,10 +88,7 @@ Additional scripts can be added inside the `/custom-scripts` directory for pipel
 
 > In a recent patch for performance enhacnement, stdout and verbose logging withing the php-syntax checking processes was removed. For reference, kindly review [PR#23](https://github.com/10up/wordpress-ci-container/pull/23).
 
-For php-syntax checks detailed logs could be enabled via:
-
-1. Setting a `IS_DEBUG_ENABLED` environment variable within your container.
-2. Putting a flag file, "_IS_DEBUG_ENABLED_" with a contents set to `true` within your container's root directory. **_(Not-recommended)_**
+For php-syntax checks detailed logs could be enabled by setting a `IS_DEBUG_ENABLED` environment variable within your container or your CI.
 
 This will enable detailed logs in php-syntax checking for debugging, trading off time for logging with increased build time for your environment.
 
