@@ -84,6 +84,14 @@ The script allows customizable messages using the following flags: `[-u webhook_
 
 Additional scripts can be added inside the `/custom-scripts` directory for pipeline use. All scripts with `.sh` extension inside the `/custom-scripts` directory can be executed by the `all-scripts` script.
 
+### Custom-scripts | PHP Syntax - Debug flag for detailed logs
+
+> In a recent patch for performance enhacnement, stdout and verbose logging withing the php-syntax checking processes was removed. For reference, kindly review [PR#23](https://github.com/10up/wordpress-ci-container/pull/23).
+
+For php-syntax checks detailed logs could be enabled by setting a `IS_DEBUG_ENABLED` environment variable within your container or your CI.
+
+This will enable detailed logs in php-syntax checking for debugging, trading off time for logging with increased build time for your environment.
+
 ## Node Version
 
 For convenience, `nvm` is installed to easily manage the node version in the CI container. To install a different node version from CI just add a step to execute the command: `nvm install <version>`; you can also execute the command from within a build script.
