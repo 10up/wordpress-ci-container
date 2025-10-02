@@ -96,6 +96,7 @@ RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" && \
 
 ## PHP extensions ##
 RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl sockets mysqli exif soap
+RUN if [ ! -z "$(php --version | grep ^PHP | awk '{print $2}' | grep -v ^7 | grep -v "8.0")" ]; then pecl install opentelemetry && docker-php-ext-enable opentelemetry; fi
 
 #### Specific to building / deploying ####
 
