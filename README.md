@@ -1,4 +1,4 @@
-# WordPress CI Container
+# WordPress CI Container 
 
 > WordPress continuous integration Docker container with composer, NPM, and other common build tools for PHP projects
 
