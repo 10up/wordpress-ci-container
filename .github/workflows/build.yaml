@@ -1,5 +1,8 @@
 name: Build Docker image
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -9,8 +12,6 @@ on:
 
 jobs:
   build_push_to_dockerhub:
-    permissions:
-      contents: read
     strategy:
       matrix:
         base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye"]
