@@ -179,12 +179,11 @@ RUN curl -L -o /tmp/gh_cli.tar.gz `curl -s https://api.github.com/repos/cli/cli/
 
 ## Install Gitlab CLI
 # Using Gitlab API to get the latest release of the https://gitlab.com/gitlab-org/cli project
-RUN curl -L -o /tmp/gl_cli.tar.gz `curl -Ls https://gitlab.com/api/v4/projects/34675721/releases/permalink/latest | jq -c '.assets.links | map(select(.name | contains("Linux_x86_64.tar.gz")).direct_asset_url)' | cut -c 3- | rev | cut -c 3- | rev` && \
-    mkdir -p /tmp/gl_cli && \
-    tar -zxf /tmp/gl_cli.tar.gz -C /tmp/gl_cli --strip-components 1 && \
-    chmod +x /tmp/gl_cli/glab && \
-    mv /tmp/gl_cli/glab /usr/local/bin/glab && \
-    rm -rf /tmp/gl_cli*
+RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | bash && \
+    apt-get update && \
+    apt-get install -y glab && \
+    apt-get autoremove -y && \
+    apt-get clean
 
 #### end of tool installation ####
 
