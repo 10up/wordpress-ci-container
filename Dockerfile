@@ -179,6 +179,7 @@ RUN curl -L -o /tmp/gh_cli.tar.gz `curl -s https://api.github.com/repos/cli/cli/
 
 ## Install Gitlab CLI
 # Using Gitlab API to get the latest release of the https://gitlab.com/gitlab-org/cli project
+# New install process outlined here: https://docs.wakemeops.com/packages/glab/
 RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | bash && \
     apt-get update && \
     apt-get install -y glab && \
