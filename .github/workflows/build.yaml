@@ -92,7 +92,7 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v2
         with:
-          push: false
+          push: false # set to false for testing
           no-cache: true
           tags: ${{ env.BUILD_TAGS }}
           build-args: |
