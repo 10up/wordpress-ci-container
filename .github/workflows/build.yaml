@@ -2,6 +2,7 @@ name: Build Docker image
 
 on:
   push:
+# commented out for testing
 #    branches:
 #      - "trunk"
   schedule:
