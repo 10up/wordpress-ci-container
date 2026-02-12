@@ -88,10 +88,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Never use cache with builds, build from scratch for security updates
-
-      - name: Build and push Docker images
+      - name: Build Docker images
         uses: docker/build-push-action@v2
-        # if: ${{ github.ref == 'refs/heads/main' }}
         if: ${{ github.ref == 'refs/heads/feature/automated-tests' }}
         with:
           push: false # set to false for testing
@@ -100,3 +98,10 @@ jobs:
           build-args: |
             PHP_IMG=${{ matrix.base_container }}
             COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
+
+      - name: Push Docker images
+        uses: docker/build-push-action@v2
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          push: true 
+          tags: ${{ env.BUILD_TAGS }}
