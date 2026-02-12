@@ -98,7 +98,7 @@ jobs:
 
       - name: Push Docker images
         uses: docker/build-push-action@v2
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/trunk' }}
         with:
           push: true 
           tags: ${{ env.BUILD_TAGS }}
