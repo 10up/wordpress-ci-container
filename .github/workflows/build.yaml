@@ -91,7 +91,7 @@ jobs:
           push: false # set to false for testing
           no-cache: true
           tags: ${{ env.BUILD_TAGS }}
-          cache-to: type=local,dest=/cache
+          cache-to: type=local,dest=cache
           build-args: |
             PHP_IMG=${{ matrix.base_container }}
             COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
@@ -101,7 +101,7 @@ jobs:
         with:
           push: false # set to false for testing
           tags: ${{ env.BUILD_TAGS }}
-          cache-from: type=local,dest=/cache
+          cache-from: type=local,dest=cache
           build-args: |
             PHP_IMG=${{ matrix.base_container }}
             COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
