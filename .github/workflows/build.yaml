@@ -2,8 +2,6 @@ name: Build Docker image
 
 on:
   push:
-    branches:
-      - "trunk"
   schedule:
     - cron: "0 4 * * 0"
 
@@ -12,7 +10,7 @@ jobs:
     strategy:
       matrix:
         base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye", "php:8.4-bullseye"]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest 
 
     steps:
       # no need to use actions/checkout with docker/build-push-action workflow
@@ -93,13 +91,23 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Never use cache with builds, build from scratch for security updates
-
-      - name: Build and push Docker images
+      - name: Build Docker images
         uses: docker/build-push-action@v2
         with:
-          push: true
+          push: false # set to false for testing
           no-cache: true
           tags: ${{ env.BUILD_TAGS }}
           build-args: |
             PHP_IMG=${{ matrix.base_container }}
             COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
+
+      - name: Push Docker images
+        uses: docker/build-push-action@v2
+        if: ${{ github.ref == 'refs/heads/trunk' }}
+        with:
+          push: true 
+          tags: ${{ env.BUILD_TAGS }}
+          build-args: |
+            PHP_IMG=${{ matrix.base_container }}
+            COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
+
