@@ -1,5 +1,8 @@
 name: Build Docker image
 
+permissions:
+  contents: read
+
 on:
   push:
   schedule:
