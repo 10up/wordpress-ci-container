@@ -80,21 +80,25 @@ jobs:
 
       ## Begin workflow ##
 
+      # https://github.com/marketplace/actions/docker-setup-qemu
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
+      # https://github.com/marketplace/actions/docker-setup-buildx
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
+      # https://github.com/marketplace/actions/docker-login
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # https://github.com/marketplace/actions/build-and-push-docker-images
       # Never use cache with builds, build from scratch for security updates
       - name: Build Docker images
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           push: false # set to false for testing
           no-cache: true
@@ -104,7 +108,7 @@ jobs:
             COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
 
       - name: Push Docker images
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         if: ${{ github.ref == 'refs/heads/trunk' }}
         with:
           push: true 
