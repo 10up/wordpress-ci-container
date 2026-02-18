@@ -67,6 +67,33 @@ The variables `PRIVATE_KEY` and `PUBLIC_KEY` can be used to create a custom publ
 
 The Terminus token can be set via the `TERMINUS_TOKEN` variable, for use with the Pantheon managed hosting platform.
 
+## Updating PHP versions
+The versions of PHP in use by the container are defined in `.github/workflows/build.yaml`:
+
+```yaml
+jobs:
+  build_push_to_dockerhub:
+    strategy:
+      matrix:
+        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye", "php:8.4-bullseye"]
+
+```
+Update steps: 
+
+1. Add base image tag to container matrix shown above. [Supported tags can be found here](https://hub.docker.com/_/php/tags). 
+2. Create 'Settings' Task using this template, updating `<VERSION>` and `<VERSION_TAG>` to the new version used.
+```yaml
+      - name: Set PHP <VERSION>  settings
+        if: ${{ matrix.base_container == 'php:<VERSION_TAG>' }}
+        run: |
+          echo "BUILD_TAGS=10up/wordpress-ci:php-<VERSION>" >> $GITHUB_ENV
+          echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
+```
+3. Push changes to working branch to trigger the build of the new image. *NOTE:* This will not push it to the registry.
+4. Create a PR and tag one of the maintainers. The image will become available once it is merged into `trunk` and the actions complete.
+
+
+
 ## CI/CD scripts
 
 The `scripts` directory contains useful tools that can help test applications and be used in CI/CD pipelines. All scripts are copied in the `/custom-scripts` directory inside the Docker image and added to the user `PATH` for easy access. The included scripts are:
