@@ -97,6 +97,7 @@ jobs:
 
       # https://github.com/marketplace/actions/build-and-push-docker-images
       # Never use cache with builds, build from scratch for security updates
+      # Disable in favor of retry action
 #     - name: Build Docker images
 #       uses: docker/build-push-action@v6
 #       with:
