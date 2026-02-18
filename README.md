@@ -68,7 +68,7 @@ The variables `PRIVATE_KEY` and `PUBLIC_KEY` can be used to create a custom publ
 The Terminus token can be set via the `TERMINUS_TOKEN` variable, for use with the Pantheon managed hosting platform.
 
 ## Updating PHP versions
-The versions of PHP in use by the container are defined in `.git/workflows/build.yaml`:
+The versions of PHP in use by the container are defined in `.github/workflows/build.yaml`:
 
 ```yaml
 jobs:
@@ -80,7 +80,7 @@ jobs:
 ```
 Update steps: 
 
-1. Add base image tag to container matrix shown above. [Supported tags can be found here](https://github.com/docker-library/docs/blob/master/php/README.md#supported-tags-and-respective-dockerfile-links). 
+1. Add base image tag to container matrix shown above. [Supported tags can be found here](https://hub.docker.com/_/php/tags). 
 2. Create 'Settings' Task using this template, updating `<VERSION>` and `<VERSION_TAG>` to the new version used.
 ```yaml
       - name: Set PHP <VERSION>  settings
