@@ -97,16 +97,17 @@ jobs:
 
       # https://github.com/marketplace/actions/build-and-push-docker-images
       # Never use cache with builds, build from scratch for security updates
-      - name: Build Docker images
-        uses: docker/build-push-action@v6
-        with:
-          push: false # set to false for testing
-          no-cache: true
-          tags: ${{ env.BUILD_TAGS }}
-          build-args: |
-            PHP_IMG=${{ matrix.base_container }}
-            COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
+#     - name: Build Docker images
+#       uses: docker/build-push-action@v6
+#       with:
+#         push: false # set to false for testing
+#         no-cache: true
+#         tags: ${{ env.BUILD_TAGS }}
+#         build-args: |
+#           PHP_IMG=${{ matrix.base_container }}
+#           COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
 
+      # https://github.com/marketplace/actions/retry-action
       - name: retry action
         uses: Wandalen/wretry.action@v3
         with:
