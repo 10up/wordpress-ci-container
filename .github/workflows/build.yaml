@@ -95,17 +95,23 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # https://github.com/marketplace/actions/build-and-push-docker-images
+
+
+      # https://github.com/marketplace/actions/retry-action
       # Never use cache with builds, build from scratch for security updates
-      - name: Build Docker images
-        uses: docker/build-push-action@v6
+      - name: Retry action for Docker build
+        uses: Wandalen/wretry.action@v3
         with:
-          push: false # set to false for testing
-          no-cache: true
-          tags: ${{ env.BUILD_TAGS }}
-          build-args: |
-            PHP_IMG=${{ matrix.base_container }}
-            COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
+          action: docker/build-push-action@v6
+          attempt_limit: 3
+          attempt_delay: 5000
+          with: |
+            push: false # set to false for testing
+            no-cache: true
+            tags: ${{ env.BUILD_TAGS }}
+            build-args: |
+              PHP_IMG=${{ matrix.base_container }}
+              COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
 
       - name: Push Docker images
         uses: docker/build-push-action@v6
