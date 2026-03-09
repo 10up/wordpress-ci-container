@@ -112,7 +112,11 @@ RUN mkdir -p ${CYPRESS_CACHE_FOLDER} && chmod 777 ${CYPRESS_CACHE_FOLDER}
 
 ARG NODE_VERSION=16
 COPY build/install-node.sh /tmp/install-node.sh
-RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "${NODE_VERSION}"
+RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "${NODE_VERSION}" && \
+    ./tmp/install-node.sh "18" && \
+    ./tmp/install-node.sh "20" && \
+    ./tmp/install-node.sh "22" && \
+
 COPY .bowerrc /root/.bowerrc
 
 ## Compass ##
