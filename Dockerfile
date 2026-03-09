@@ -115,7 +115,7 @@ COPY build/install-node.sh /tmp/install-node.sh
 RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "${NODE_VERSION}" && \
     ./tmp/install-node.sh "18" && \
     ./tmp/install-node.sh "20" && \
-    ./tmp/install-node.sh "22" && \
+    ./tmp/install-node.sh "22" 
 
 COPY .bowerrc /root/.bowerrc
 
