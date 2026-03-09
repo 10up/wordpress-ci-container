@@ -104,7 +104,7 @@ RUN if [ ! -z "$(php --version | grep ^PHP | awk '{print $2}' | grep -v ^7 | gre
 
 ENV NVM_DIR /tmp/.nvm
 RUN mkdir ${NVM_DIR}
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
 # Workaround - Cypress installation
 ENV CYPRESS_CACHE_FOLDER /tmp/cypress/cache
