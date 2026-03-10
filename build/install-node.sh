@@ -21,18 +21,6 @@ echo "Building node environment for version ${NODE_VERSION}"
 
 nvm install "${NODE_VERSION}"
 
-# Cypress version added since latest supports v18.x and above. Setting Cypress version to 13.1.0 according to cypress changelog for supporting node v16.x releases.
-# Lighthouse breaking changes for [v11.x / latest](https://github.com/GoogleChrome/lighthouse/releases/tag/v11.0.0), release tag for Aug 4, 2023. Setting latest stable version for node 16 support. (~10.4)
-npm install -g \
-    grunt-cli \
-    gulp-cli \
-    bower \
-    yarn \
-    lighthouse@~10.4 \
-    serverless \
-    firebase-tools \
-    cypress@~13.1
-
 npm cache clean --force
 
 echo "node ${NODE_VERSION} build completed..."
