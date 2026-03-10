@@ -120,7 +120,6 @@ RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "${NODE_VERSION}" && \
 COPY .bowerrc /root/.bowerrc
 
 ## Compass ##
-
 RUN gem install compass
 
 ## Ansible, awscli, other Python tools ##
