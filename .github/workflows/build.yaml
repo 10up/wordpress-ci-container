@@ -12,7 +12,7 @@ jobs:
   build_push_to_dockerhub:
     strategy:
       matrix:
-        base_container: ["php:7.4-bookworm", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye", "php:8.4-bullseye"]
+        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye", "php:8.4-bullseye"]
     runs-on: ubuntu-latest 
 
     steps:
@@ -25,7 +25,7 @@ jobs:
       # upon EOL, this should move to 8.0
       # 7.4 has already reached EoL, we can consider 8.0 as default version now
       - name: Set PHP 7.4 settings
-        if: ${{ matrix.base_container == 'php:7.4-bookworm' }}
+        if: ${{ matrix.base_container == 'php:7.4-bullseye' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:latest,10up/wordpress-ci:php-7.4" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=1" >> $GITHUB_ENV
