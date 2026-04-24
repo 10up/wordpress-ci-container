@@ -123,8 +123,8 @@ RUN gem install compass
 
 COPY requirements.txt /tmp/requirements.txt
 RUN python3 -m pip -V && \
+    python3 -m pip install --upgrade pip && \
     python3 -m pip install --break-system-packages -r /tmp/requirements.txt
-#RUN pip3 install --upgrade pip && pip3 --no-cache-dir install -r /tmp/requirements.txt
 
 ## Composer ##
 ARG COMPOSER_VERSION 1
