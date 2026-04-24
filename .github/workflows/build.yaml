@@ -12,7 +12,7 @@ jobs:
   build_push_to_dockerhub:
     strategy:
       matrix:
-        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye", "php:8.4-bullseye"]
+        base_container: ["php:7.4-bullseye", "php:8.0-bookworm", "php:8.1-bookworm", "php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
     runs-on: ubuntu-latest 
 
     steps:
