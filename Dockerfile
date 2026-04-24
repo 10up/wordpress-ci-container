@@ -121,9 +121,9 @@ RUN gem install compass
 
 ## Ansible, awscli, other Python tools ##
 
-COPY requirements.txt /tmp/requirements.txt 
+COPY requirements.txt /tmp/requirements.txt
 RUN python3 -m pip -V && \
-    python3 -m pip install -r /tmp/requirements.txt
+    python3 -m pip install --break-system-packages -r /tmp/requirements.txt
 #RUN pip3 install --upgrade pip && pip3 --no-cache-dir install -r /tmp/requirements.txt
 
 ## Composer ##
