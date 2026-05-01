@@ -197,7 +197,7 @@ ENV PATH="/custom-scripts:${PATH}"
 # Create SSH directory
 # SSH keys for deploys or auth are set in entrypoint.sh
 
-RUN mkdir /root/.ssh && \
+RUN mkdir -p /root/.ssh && \
     chmod 700 /root/.ssh
 
 # force CI jobs to source root's .bashrc, which will enable NVM
