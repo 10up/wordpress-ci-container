@@ -104,7 +104,7 @@ jobs:
         with:
           action: docker/build-push-action@v6
           attempt_limit: 3
-          attempt_delay: 5000
+          attempt_delay: 30
           with: |
             push: false # set to false for testing
             no-cache: true
