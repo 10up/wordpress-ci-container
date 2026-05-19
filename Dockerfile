@@ -121,10 +121,10 @@ RUN gem install compass
 
 ## Ansible, awscli, other Python tools ##
 
-COPY requirements.txt /tmp/requirements.txt 
-RUN python3 -m pip -V && \
-    python3 -m pip install -r /tmp/requirements.txt
-#RUN pip3 install --upgrade pip && pip3 --no-cache-dir install -r /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt
+RUN PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip -V && \
+    PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install --upgrade pip && \
+    PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -r /tmp/requirements.txt
 
 ## Composer ##
 ARG COMPOSER_VERSION 1
@@ -197,7 +197,7 @@ ENV PATH="/custom-scripts:${PATH}"
 # Create SSH directory
 # SSH keys for deploys or auth are set in entrypoint.sh
 
-RUN mkdir /root/.ssh && \
+RUN mkdir -p /root/.ssh && \
     chmod 700 /root/.ssh
 
 # force CI jobs to source root's .bashrc, which will enable NVM
