@@ -30,4 +30,4 @@ config.codekit
 id_rsa
 id_rsa.pub
 
-.claude
+.claude/settings.local.json
