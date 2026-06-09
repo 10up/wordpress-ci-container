@@ -64,8 +64,6 @@ RUN apt-get update && \
       python3 \
       python3-pip \
       rsync \
-      ruby \
-      ruby-dev \
       shellcheck \
       software-properties-common \
       sshpass \
@@ -110,21 +108,12 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | b
 ENV CYPRESS_CACHE_FOLDER /tmp/cypress/cache
 RUN mkdir -p ${CYPRESS_CACHE_FOLDER} && chmod 777 ${CYPRESS_CACHE_FOLDER}
 
-ARG NODE_VERSION=18
+ARG NODE_VERSION=24
 COPY build/install-node.sh /tmp/install-node.sh
-RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "${NODE_VERSION}" && \
-    ./tmp/install-node.sh "20" && \
-    ./tmp/install-node.sh "22" && \
-    ./tmp/install-node.sh "24" && \
-    ./tmp/install-node.sh "--lts"
+RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "--lts"
 
-COPY .bowerrc /root/.bowerrc
-
-## Compass ##
-RUN gem install compass
 
 ## Ansible, awscli, other Python tools ##
-
 COPY requirements.txt /tmp/requirements.txt
 RUN PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip -V && \
     PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install --upgrade pip && \
