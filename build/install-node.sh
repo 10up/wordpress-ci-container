@@ -29,9 +29,15 @@ npm install -g \
     bower \
     yarn \
     lighthouse@~10.4 \
-    serverless \
     firebase-tools \
     cypress@~13.1
+
+# TEMP FIX for issues with installing node 16
+# will be addressed in an upcoming version update
+if [[ "${NODE_VERSION}" != "16" ]];
+then
+  npm install -g serverless
+fi
 
 npm cache clean --force
 

@@ -12,7 +12,7 @@ jobs:
   build_push_to_dockerhub:
     strategy:
       matrix:
-        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye", "php:8.4-bullseye"]
+        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
     runs-on: ubuntu-latest 
 
     steps:
@@ -43,19 +43,19 @@ jobs:
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
       
       - name: Set PHP 8.2 settings
-        if: ${{ matrix.base_container == 'php:8.2-bullseye' }}
+        if: ${{ matrix.base_container == 'php:8.2-bookworm' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.2" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 
       - name: Set PHP 8.3 settings
-        if: ${{ matrix.base_container == 'php:8.3-bullseye' }}
+        if: ${{ matrix.base_container == 'php:8.3-bookworm' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.3" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 
       - name: Set PHP 8.4 settings
-        if: ${{ matrix.base_container == 'php:8.4-bullseye' }}
+        if: ${{ matrix.base_container == 'php:8.4-bookworm' }}
         run: |
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.4" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
@@ -104,7 +104,7 @@ jobs:
         with:
           action: docker/build-push-action@v6
           attempt_limit: 3
-          attempt_delay: 5000
+          attempt_delay: 30
           with: |
             push: false # set to false for testing
             no-cache: true
