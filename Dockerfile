@@ -110,7 +110,10 @@ RUN mkdir -p ${CYPRESS_CACHE_FOLDER} && chmod 777 ${CYPRESS_CACHE_FOLDER}
 
 ARG NODE_VERSION=24
 COPY build/install-node.sh /tmp/install-node.sh
-RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "--lts"
+RUN chmod +x /tmp/install-node.sh && \
+    /tmp/install-node.sh "--lts" && \
+    . "$NVM_DIR/nvm.sh" && \
+    nvm alias default 'lts/*'
 
 
 ## Ansible, awscli, other Python tools ##

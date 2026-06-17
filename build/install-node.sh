@@ -24,10 +24,3 @@ nvm install "${NODE_VERSION}"
 npm cache clean --force
 
 echo "node ${NODE_VERSION} build completed..."
-
-if [[ "${NODE_VERSION}" =~ "lts" ]];
-then
-  nvm alias default 'lts/*'
-else
-  nvm alias default "${NODE_VERSION}"
-fi
