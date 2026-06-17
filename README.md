@@ -25,7 +25,7 @@
 - terminus
 - yamllint
 
-Node and npm are managed by the `build/install-node.sh` script. The following versions are supported by default: [16, 18, 20, 22]
+Node and npm are managed by the `build/install-node.sh` script. The following versions are supported by default: [18, 20, 22, 24, LTS]
 
 ## Customize Package and Tool Configurations
 
