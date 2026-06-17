@@ -125,7 +125,7 @@ RUN PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip -V && \
 ## Composer ##
 ARG COMPOSER_VERSION 1
 
-ENV COMPOSER_ALLOW_SUPERUSER=""1
+ENV COMPOSER_ALLOW_SUPERUSER="1"
 ENV COMPOSER_HOME="/tmp"
 
 COPY build/install-composer.sh /tmp/install-composer.sh
