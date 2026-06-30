@@ -18,25 +18,59 @@ function green {
 
 green "#### Starting Virus Scan ####"
 
-clamscan --exclude-dir ./.composer-cache --exclude-dir ./node_modules_cache -riz .
+clamd & 
+CLAMD_PID=$!
 
-virus_status=$?
+SOCKET=/var/run/clamav/clamd.ctl
+WAITED=0
 
-echo "-------"
-echo ""
+# wait for unix socket with a max timeout of 60s
+until [ -S "${SOCKET}" ] || [ "${WAITED}" -ge 60 ]; do
+  sleep 1
+  WAITED=$((WAITED + 1))
+done
 
-if [ $virus_status -eq 0 ]
+if [ ! -s "${SOCKET}" ]; then
+  red "ERROR: clamd did not start within 60 seconds. Aborting scan."
+  kill "${CLAMD_PID}" 2>/dev/null
+  exit 1
+fi
+
+clamdscan \
+  --multiscan \
+  --fdpass \
+  --exclude='./.composer-cache' \
+  --exclude='./node_modules_cache' \
+  -ri .
+
+SCAN_EXIT=$?
+
+if [ $SCAN_EXIT -eq 0 ]
 then
-  green "Clean - no viruses found"
+  green "Clean: no viruses found"
   echo ""
-  exit 0
-elif [ $virus_status -eq 1 ]
+  kill "${CLAMD_PID}"
+  wait "${CLAMD_PID}" 2>/dev/null
+  exit "${SCAN_EXIT}"
+elif [ $SCAN_EXIT -eq 1 ]
 then
   red "**** INFECTED FILE FOUND!!! **** PLEASE SEE REPORT ABOVE ****"
   echo ""
   exit 1
+  kill "${CLAMD_PID}"
+  wait "${CLAMD_PID}" 2>/dev/null
+  exit "${SCAN_EXIT}"
+
 else
   red "Virus scanner internal error."
   echo ""
-  exit 0 # don't block a deploy because the virus scan program is broken
+  kill "${CLAMD_PID}"
+  wait "${CLAMD_PID}" 2>/dev/null
+
+  exit 0
 fi
+
+# Ensure scan is closed
+kill "${CLAMD_PID}"
+wait "${CLAMD_PID}" 2>/dev/null
+
