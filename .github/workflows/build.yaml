@@ -123,3 +123,14 @@ jobs:
             PHP_IMG=${{ matrix.base_container }}
             COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
 
+      - name: Build and Push 8.4 Test 
+        uses: docker/build-push-action@v6
+        if: ${{ github.ref == 'refs/heads/develop' }}
+        with:
+          push: true
+          no-cache: true
+          tags: 10up/wordpress-ci:php-8.4-develop
+          build-args: |
+            PHP_IMG=php:8.4-bookworm
+            COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
+
