@@ -44,7 +44,7 @@ until [ -S "${SOCKET}" ] || [ "${WAITED}" -ge 60 ]; do
 done
 
 if [ ! -S "${SOCKET}" ]; then
-  red "ERROR: clamd did not start within 60 seconds. Aborting scan."
+  red "$(date +%Y-%m-%d) ERROR: clamd did not start within 60 seconds. Aborting scan."
   kill "${CLAMD_PID}" 2>/dev/null
   exit 1
 fi
