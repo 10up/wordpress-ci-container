@@ -1,8 +1,14 @@
 #!/bin/bash
 set -Eeuo pipefail
 
+CLAMD_CONFIG
+
 SOCKET=clamd.sock
 WAITED=0
+
+cat > clamd.conf <<EOF
+LocalSocket ${SOCKET}
+EOF
 
 handle_error() {
     local exit_code=$?
