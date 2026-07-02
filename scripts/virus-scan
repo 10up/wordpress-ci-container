@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-SOCKET=/tmp/clamd.socket
+SOCKET=clamd.sock
 WAITED=0
 
 handle_error() {
@@ -34,7 +34,7 @@ function green {
 
 green "#### Starting Virus Scan ####"
 
-clamd -F -p clam.pid &
+clamd -c clamd.conf -F -p clam.pid &
 CLAMD_PID=$!
 
 # wait for unix socket with a max timeout of 60s
