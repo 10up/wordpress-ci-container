@@ -1,4 +1,20 @@
 #!/bin/bash
+set -Eeuo pipefail
+
+SOCKET=/tmp/clamd.socket
+WAITED=0
+
+handle_error() {
+    local exit_code=$?
+    local line_no=$1
+    echo "Error on line ${line_no}: command exited with status ${exit_code}" >&2
+    if [ -f "${SOCKET}" ];
+    then
+      rm "${SOCKET}"
+    fi
+}
+
+trap 'handle_error $LINENO' ERR
 
 # Use ClamAV to do a virus scan of the repo. Only display files where a virus is found
 
@@ -18,11 +34,8 @@ function green {
 
 green "#### Starting Virus Scan ####"
 
-clamd & 
+clamd -F -p clam.pid &
 CLAMD_PID=$!
-
-SOCKET=/var/run/clamav/clamd.ctl
-WAITED=0
 
 # wait for unix socket with a max timeout of 60s
 until [ -S "${SOCKET}" ] || [ "${WAITED}" -ge 60 ]; do
@@ -30,7 +43,7 @@ until [ -S "${SOCKET}" ] || [ "${WAITED}" -ge 60 ]; do
   WAITED=$((WAITED + 1))
 done
 
-if [ ! -s "${SOCKET}" ]; then
+if [ ! -S "${SOCKET}" ]; then
   red "ERROR: clamd did not start within 60 seconds. Aborting scan."
   kill "${CLAMD_PID}" 2>/dev/null
   exit 1
