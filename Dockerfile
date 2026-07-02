@@ -192,7 +192,7 @@ RUN curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/ins
 ## CI pipeline scripts and auth ##
 
 COPY scripts/* /custom-scripts/
-COPY config/clamd.conf
+COPY config/clamd.conf /custom-scripts/clamd.conf
 RUN chmod +x /custom-scripts/*
 ENV PATH="/custom-scripts:${PATH}"
 
