@@ -25,17 +25,7 @@
 - terminus
 - yamllint
 
-**npm packages installed:**
-- grunt-cli
-- gulp-cli
-- bower
-- yarn
-- lighthouse
-- serverless
-- firebase-tools
-- cypress
-
-Node and npm are managed by the `build/install-node.sh` script.
+Node and npm are managed by the `build/install-node.sh` script. The following versions are supported by default: [18, 20, 22, 24, LTS]
 
 ## Customize Package and Tool Configurations
 

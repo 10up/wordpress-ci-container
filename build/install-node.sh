@@ -43,4 +43,9 @@ npm cache clean --force
 
 echo "node ${NODE_VERSION} build completed..."
 
-nvm alias default ${NODE_VERSION}
+if [[ "${NODE_VERSION}" =~ "lts" ]];
+then
+  nvm alias default 'lts/*'
+else
+  nvm alias default "${NODE_VERSION}"
+fi
