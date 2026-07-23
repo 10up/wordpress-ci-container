@@ -1,95 +1,72 @@
 #!/bin/bash
 set -Eeuo pipefail
+set -x
 
-CLAMD_CONFIG
-
-SOCKET=clamd.sock
+SOCKET=/tmp/clamd.sock
+DB_DIR="${CLAMAV_DB_DIR:-/var/lib/clamav}"
+CLAMD_CONF=/tmp/clamd-$$.conf
+CLAMD_LOG=/tmp/clamd-$$.log
+CLAMD_PID=""
 WAITED=0
 
-cat > clamd.conf <<EOF
-LocalSocket ${SOCKET}
-EOF
-
-handle_error() {
-    local exit_code=$?
-    local line_no=$1
-    echo "Error on line ${line_no}: command exited with status ${exit_code}" >&2
-    if [ -f "${SOCKET}" ];
-    then
-      rm "${SOCKET}"
-    fi
-}
-
-trap 'handle_error $LINENO' ERR
-
-# Use ClamAV to do a virus scan of the repo. Only display files where a virus is found
-
-# Colors
-# shellcheck disable=SC1117
 end="\033[0m"
 red="\033[0;31m"
 green="\033[0;32m"
+red()   { echo -e "${red}${1}${end}"; }
+green() { echo -e "${green}${1}${end}"; }
 
-function red {
-  echo -e "${red}${1}${end}"
+cleanup() {
+    [ -n "$CLAMD_PID" ] && kill "$CLAMD_PID" 2>/dev/null || true
+    [ -n "$CLAMD_PID" ] && wait "$CLAMD_PID" 2>/dev/null || true
+    rm -f "${SOCKET}" "${CLAMD_CONF}" "${CLAMD_LOG}"
 }
-
-function green {
-  echo -e "${green}${1}${end}"
-}
+trap cleanup EXIT
 
 green "#### Starting Virus Scan ####"
 
-clamd -c clamd.conf -F -p clam.pid &
+for bin in clamd clamdscan; do
+    command -v "$bin" > /dev/null 2>&1 || { echo "ERROR: $bin not found" >&2; exit 1; }
+done
+
+[ -d "${DB_DIR}" ] || { echo "ERROR: virus DB directory not found: ${DB_DIR}" >&2; exit 1; }
+
+cat > "${CLAMD_CONF}" <<EOF
+LocalSocket ${SOCKET}
+DatabaseDirectory ${DB_DIR}
+Foreground yes
+LogFile ${CLAMD_LOG}
+EOF
+
+clamd -c "${CLAMD_CONF}" &
 CLAMD_PID=$!
 
-# wait for unix socket with a max timeout of 60s
 until [ -S "${SOCKET}" ] || [ "${WAITED}" -ge 60 ]; do
-  sleep 1
-  WAITED=$((WAITED + 1))
+    sleep 1
+    WAITED=$((WAITED + 1))
 done
 
 if [ ! -S "${SOCKET}" ]; then
-  red "$(date +%Y-%m-%d) ERROR: clamd did not start within 60 seconds. Aborting scan."
-  kill "${CLAMD_PID}" 2>/dev/null
-  exit 1
+    red "ERROR: clamd did not start within 60 seconds — aborting scan"
+    [ -f "${CLAMD_LOG}" ] && cat "${CLAMD_LOG}" >&2
+    exit 1
 fi
 
 clamdscan \
-  --multiscan \
-  --fdpass \
-  --exclude='./.composer-cache' \
-  --exclude='./node_modules_cache' \
-  -ri .
+    --config-file="${CLAMD_CONF}" \
+    --multiscan \
+    --fdpass \
+    --exclude='./.composer-cache' \
+    --exclude='./node_modules_cache' \
+    -ri .
 
 SCAN_EXIT=$?
 
-if [ $SCAN_EXIT -eq 0 ]
-then
-  green "Clean: no viruses found"
-  echo ""
-  kill "${CLAMD_PID}"
-  wait "${CLAMD_PID}" 2>/dev/null
-  exit "${SCAN_EXIT}"
-elif [ $SCAN_EXIT -eq 1 ]
-then
-  red "**** INFECTED FILE FOUND!!! **** PLEASE SEE REPORT ABOVE ****"
-  echo ""
-  exit 1
-  kill "${CLAMD_PID}"
-  wait "${CLAMD_PID}" 2>/dev/null
-  exit "${SCAN_EXIT}"
-
+if [ "$SCAN_EXIT" -eq 0 ]; then
+    green "Clean: no viruses found"
+elif [ "$SCAN_EXIT" -eq 1 ]; then
+    red "**** INFECTED FILE FOUND — see report above ****"
+    exit 1
 else
-  red "Virus scanner internal error."
-  echo ""
-  kill "${CLAMD_PID}"
-  wait "${CLAMD_PID}" 2>/dev/null
-
-  exit 0
+    echo "ERROR: clamdscan exited with code ${SCAN_EXIT} — scan did not complete cleanly" >&2
+    exit "$SCAN_EXIT"
 fi
-
-# Ensure scan is closed
-kill "${CLAMD_PID}"
-wait "${CLAMD_PID}" 2>/dev/null
-
