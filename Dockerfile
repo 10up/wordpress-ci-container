@@ -64,8 +64,6 @@ RUN apt-get update && \
       python3 \
       python3-pip \
       rsync \
-      ruby \
-      ruby-dev \
       shellcheck \
       software-properties-common \
       sshpass \
@@ -89,7 +87,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
-ENV LANG en_US.utf8
+ENV LANG="en_US.utf8"
 
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" && \
     echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
@@ -102,29 +100,23 @@ RUN if [ ! -z "$(php --version | grep ^PHP | awk '{print $2}' | grep -v ^7 | gre
 
 ## set up NVM and install node ##
 
-ENV NVM_DIR /tmp/.nvm
+ENV NVM_DIR="/tmp/.nvm"
 RUN mkdir ${NVM_DIR}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | bash
 
 # Workaround - Cypress installation
-ENV CYPRESS_CACHE_FOLDER /tmp/cypress/cache
+ENV CYPRESS_CACHE_FOLDER="/tmp/cypress/cache"
 RUN mkdir -p ${CYPRESS_CACHE_FOLDER} && chmod 777 ${CYPRESS_CACHE_FOLDER}
 
-ARG NODE_VERSION=18
+ARG NODE_VERSION=24
 COPY build/install-node.sh /tmp/install-node.sh
-RUN chmod +x /tmp/install-node.sh && /tmp/install-node.sh "${NODE_VERSION}" && \
-    ./tmp/install-node.sh "20" && \
-    ./tmp/install-node.sh "22" && \
-    ./tmp/install-node.sh "24" && \
-    ./tmp/install-node.sh "--lts"
+RUN chmod +x /tmp/install-node.sh && \
+    /tmp/install-node.sh "--lts" && \
+    . "$NVM_DIR/nvm.sh" && \
+    nvm alias default 'lts/*'
 
-COPY .bowerrc /root/.bowerrc
-
-## Compass ##
-RUN gem install compass
 
 ## Ansible, awscli, other Python tools ##
-
 COPY requirements.txt /tmp/requirements.txt
 RUN PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip -V && \
     PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install --upgrade pip && \
@@ -133,8 +125,8 @@ RUN PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip -V && \
 ## Composer ##
 ARG COMPOSER_VERSION 1
 
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_HOME /tmp
+ENV COMPOSER_ALLOW_SUPERUSER="1"
+ENV COMPOSER_HOME="/tmp"
 
 COPY build/install-composer.sh /tmp/install-composer.sh
 RUN /tmp/install-composer.sh && \
@@ -205,7 +197,7 @@ RUN mkdir -p /root/.ssh && \
     chmod 700 /root/.ssh
 
 # force CI jobs to source root's .bashrc, which will enable NVM
-ENV BASH_ENV "/root/.bashrc"
+ENV BASH_ENV="/root/.bashrc"
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
