@@ -68,6 +68,7 @@ RUN apt-get update && \
       software-properties-common \
       sshpass \
       subversion \
+      unzip \
       vim \
       wget \
       xdg-utils \
