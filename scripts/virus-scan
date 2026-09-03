@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# Use ClamAV to do a virus scan of the repo. Only display files where a virus is found
+set -uo pipefail
+
+# Use a short-lived ClamAV daemon to scan the repository in parallel. Only
+# display files where a virus is found.
 
 # Colors
 # shellcheck disable=SC1117
@@ -8,35 +11,112 @@ end="\033[0m"
 red="\033[0;31m"
 green="\033[0;32m"
 
-function red {
-  echo -e "${red}${1}${end}"
+red() {
+	echo -e "${red}${1}${end}"
 }
 
-function green {
-  echo -e "${green}${1}${end}"
+green() {
+	echo -e "${green}${1}${end}"
 }
+
+scanner_error() {
+	red "Virus scanner internal error."
+}
+
+for binary in clamd clamdscan; do
+	if ! command -v "${binary}" > /dev/null 2>&1; then
+		scanner_error
+		exit 0
+	fi
+done
+
+database_dir="${CLAMAV_DB_DIR:-/var/lib/clamav}"
+if [[ ! -d "${database_dir}" ]]; then
+	scanner_error
+	exit 0
+fi
+
+runtime_dir="$(mktemp -d "${TMPDIR:-/tmp}/virus-scan.XXXXXX")"
+if [[ -z "${runtime_dir}" || ! -d "${runtime_dir}" ]]; then
+	scanner_error
+	exit 0
+fi
+
+clamd_config="${runtime_dir}/clamd.conf"
+clamd_log="${runtime_dir}/clamd.log"
+clamd_pid=""
+
+cleanup() {
+	local exit_status=$?
+	trap - EXIT
+
+	if [[ -n "${clamd_pid}" ]] && kill -0 "${clamd_pid}" 2>/dev/null; then
+		kill "${clamd_pid}" 2>/dev/null || true
+		wait "${clamd_pid}" 2>/dev/null || true
+	fi
+
+	if [[ -d "${runtime_dir}" ]]; then
+		rm -r -- "${runtime_dir}"
+	fi
+	exit "${exit_status}"
+}
+trap cleanup EXIT
+
+cat > "${clamd_config}" <<EOF
+LocalSocket ${runtime_dir}/clamd.sock
+FixStaleSocket yes
+DatabaseDirectory ${database_dir}
+Foreground yes
+PidFile ${runtime_dir}/clamd.pid
+ExcludePath (^|/)\.composer-cache(/|$)
+ExcludePath (^|/)node_modules_cache(/|$)
+EOF
 
 green "#### Starting Virus Scan ####"
 
-clamscan --exclude-dir ./.composer-cache --exclude-dir ./node_modules_cache -riz .
+clamd -c "${clamd_config}" > "${clamd_log}" 2>&1 &
+clamd_pid=$!
 
+clamd_ready=false
+for _ in {1..30}; do
+	if clamdscan --config-file="${clamd_config}" --ping=1 > /dev/null 2>&1; then
+		clamd_ready=true
+		break
+	fi
+
+	if ! kill -0 "${clamd_pid}" 2>/dev/null; then
+		break
+	fi
+
+	sleep 1
+done
+
+if [[ "${clamd_ready}" != "true" ]]; then
+	[[ -f "${clamd_log}" ]] && cat "${clamd_log}" >&2
+	scanner_error
+	exit 0
+fi
+
+clamdscan \
+	--config-file="${clamd_config}" \
+	--multiscan \
+	--infected \
+	"${PWD}"
 virus_status=$?
 
 echo "-------"
 echo ""
 
-if [ $virus_status -eq 0 ]
-then
-  green "Clean - no viruses found"
-  echo ""
-  exit 0
-elif [ $virus_status -eq 1 ]
-then
-  red "**** INFECTED FILE FOUND!!! **** PLEASE SEE REPORT ABOVE ****"
-  echo ""
-  exit 1
+if [[ "${virus_status}" -eq 0 ]]; then
+	green "Clean - no viruses found"
+	echo ""
+	exit 0
+elif [[ "${virus_status}" -eq 1 ]]; then
+	red "**** INFECTED FILE FOUND!!! **** PLEASE SEE REPORT ABOVE ****"
+	echo ""
+	exit 1
 else
-  red "Virus scanner internal error."
-  echo ""
-  exit 0 # don't block a deploy because the virus scan program is broken
+	scanner_error
+	echo ""
+	exit 0 # don't block a deploy because the virus scan program is broken
 fi
