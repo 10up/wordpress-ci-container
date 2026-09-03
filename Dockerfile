@@ -8,6 +8,7 @@ RUN apt-get update && \
       build-essential \
       ca-certificates \
       clamav \
+      clamav-daemon \
       clamav-freshclam \
       curl \
       fonts-liberation \
@@ -204,4 +205,3 @@ COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-

@@ -16,7 +16,7 @@
 - php
 - rsync
 - shellcheck
-- clamscan
+- clamdscan
 - kubectl
 - aws-cli
 - azure-cli
@@ -90,7 +90,7 @@ The `scripts` directory contains useful tools that can help test applications an
 
 - `all-scripts`: Runs all the included and additional custom scripts inside the `/custom-scripts` directory.
 - `php-syntax`: Checks the syntax of all PHP files inside the `workdir`
-- `virus-scan`: Runs `clamscan` against the `workdir`.
+- `virus-scan`: Starts a temporary ClamAV daemon and runs a parallel `clamdscan` against the `workdir`.
 - `slack-message`: Sends Slack notifications via webhook.
 
 ### Using slack-message
