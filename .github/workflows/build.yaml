@@ -122,4 +122,3 @@ jobs:
           build-args: |
             PHP_IMG=${{ matrix.base_container }}
             COMPOSER_VERSION=${{ env.COMPOSER_VERSION }}
-
