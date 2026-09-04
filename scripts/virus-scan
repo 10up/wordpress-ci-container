@@ -44,6 +44,7 @@ fi
 
 clamd_config="${runtime_dir}/clamd.conf"
 clamd_log="${runtime_dir}/clamd.log"
+scan_report="${runtime_dir}/clamdscan.report"
 clamd_pid=""
 
 cleanup() {
@@ -100,9 +101,34 @@ fi
 clamdscan \
 	--config-file="${clamd_config}" \
 	--multiscan \
-	--infected \
-	"${PWD}"
+	"${PWD}" > "${scan_report}" 2>&1
 virus_status=$?
+
+scanned_files="$(
+	awk '
+		/: OK$/ || / FOUND$/ { count++ }
+		END { print count + 0 }
+	' "${scan_report}"
+)"
+
+awk -v scanned_files="${scanned_files}" '
+	/^----------- SCAN SUMMARY -----------$/ {
+		summary_printed = 1
+		print
+		print "Scanned files: " scanned_files
+		next
+	}
+
+	/: OK$/ { next }
+
+	{ print }
+
+	END {
+		if (!summary_printed) {
+			print "Scanned files: " scanned_files
+		}
+	}
+' "${scan_report}"
 
 echo "-------"
 echo ""

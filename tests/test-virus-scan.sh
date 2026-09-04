@@ -42,6 +42,16 @@ assert_file_contains() {
 	fi
 }
 
+assert_file_not_contains() {
+	local file="$1"
+	local pattern="$2"
+	local description="$3"
+
+	if [[ ! -f "${file}" ]] || grep -Eq -- "${pattern}" "${file}"; then
+		fail "${description}"
+	fi
+}
+
 create_fake_binaries() {
 	local bin_dir="$1"
 
@@ -93,6 +103,39 @@ for argument in "$@"; do
 	fi
 done
 
+case "${FAKE_SCAN_EXIT:-0}" in
+	0)
+		printf '%s\n' \
+			"${TEST_STATE}/work/clean-one.php: OK" \
+			"${TEST_STATE}/work/clean-two.php: OK" \
+			'' \
+			'----------- SCAN SUMMARY -----------' \
+			'Infected files: 0' \
+			'Time: 0.010 sec (0 m 0 s)'
+		;;
+	1)
+		printf '%s\n' \
+			"${TEST_STATE}/work/clean.php: OK" \
+			"${TEST_STATE}/work/infected.php: Eicar-Test-Signature FOUND" \
+			'' \
+			'----------- SCAN SUMMARY -----------' \
+			'Infected files: 1' \
+			'Time: 0.010 sec (0 m 0 s)'
+		;;
+	2)
+		printf '%s\n' \
+			"${TEST_STATE}/work/unreadable.php: File path check failure: Permission denied. ERROR" \
+			'' \
+			'----------- SCAN SUMMARY -----------' \
+			'Infected files: 0' \
+			'Total errors: 1' \
+			'Time: 0.010 sec (0 m 0 s)'
+		;;
+	3)
+		printf '%s\n' 'ERROR: Could not connect to clamd.'
+		;;
+esac
+
 exit "${FAKE_SCAN_EXIT:-0}"
 EOF
 
@@ -136,19 +179,32 @@ run_scan_case() {
 
 run_scan_case clean 0 success 0
 assert_file_contains "${TEST_DIR}/clean/clamdscan.calls" '--multiscan' 'clean scan requests multiscan'
-assert_file_contains "${TEST_DIR}/clean/clamdscan.calls" '--infected' 'clean scan only reports infected files'
+assert_file_not_contains "${TEST_DIR}/clean/clamdscan.calls" '--infected' 'clean scan captures clean results for counting'
 assert_file_contains "${TEST_DIR}/clean/clamd.conf" 'ExcludePath .*\\.composer-cache' 'composer cache exclusion is configured for clamd'
 assert_file_contains "${TEST_DIR}/clean/clamd.conf" 'ExcludePath .*node_modules_cache' 'node modules cache exclusion is configured for clamd'
+assert_file_contains "${TEST_DIR}/clean/output" 'Scanned files: 2' 'clean scan reports the scanned file count'
+assert_file_not_contains "${TEST_DIR}/clean/output" 'clean-(one|two)\.php: OK' 'clean scan suppresses clean file paths'
 assert_file_contains "${TEST_DIR}/clean/output" 'Clean - no viruses found' 'clean scan reports success'
 [[ -f "${TEST_DIR}/clean/clamd.stopped" ]] || fail 'clean scan stops the temporary daemon'
 
 run_scan_case infected 1 success 1
+assert_file_contains "${TEST_DIR}/infected/output" 'Scanned files: 2' 'infected scan reports the scanned file count'
+assert_file_contains "${TEST_DIR}/infected/output" 'infected\.php: Eicar-Test-Signature FOUND' 'infected scan reports the infected file'
+assert_file_not_contains "${TEST_DIR}/infected/output" 'clean\.php: OK' 'infected scan suppresses clean file paths'
 assert_file_contains "${TEST_DIR}/infected/output" 'INFECTED FILE FOUND' 'infected scan reports malware'
 [[ -f "${TEST_DIR}/infected/clamd.stopped" ]] || fail 'infected scan stops the temporary daemon'
 
 run_scan_case scan_error 2 success 0
+assert_file_contains "${TEST_DIR}/scan_error/output" 'Scanned files: 0' 'scan errors report zero successful file scans'
+assert_file_contains "${TEST_DIR}/scan_error/output" 'unreadable\.php: .* ERROR' 'scan errors remain visible'
 assert_file_contains "${TEST_DIR}/scan_error/output" 'Virus scanner internal error' 'scan errors remain fail-open'
 [[ -f "${TEST_DIR}/scan_error/clamd.stopped" ]] || fail 'scan errors stop the temporary daemon'
+
+run_scan_case scan_error_without_summary 3 success 0
+assert_file_contains "${TEST_DIR}/scan_error_without_summary/output" 'Scanned files: 0' 'scan errors without a summary report zero successful file scans'
+assert_file_contains "${TEST_DIR}/scan_error_without_summary/output" 'ERROR: Could not connect to clamd' 'scan errors without a summary remain visible'
+assert_file_contains "${TEST_DIR}/scan_error_without_summary/output" 'Virus scanner internal error' 'scan errors without a summary remain fail-open'
+[[ -f "${TEST_DIR}/scan_error_without_summary/clamd.stopped" ]] || fail 'scan errors without a summary stop the temporary daemon'
 
 run_scan_case startup_error 0 failure 0
 assert_file_contains "${TEST_DIR}/startup_error/output" 'Virus scanner internal error' 'daemon startup errors remain fail-open'
