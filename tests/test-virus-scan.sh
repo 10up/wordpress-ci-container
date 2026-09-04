@@ -80,6 +80,24 @@ done
 
 cp "${config_file}" "${TEST_STATE}/clamd.conf"
 printf '%s\n' "$$" > "${TEST_STATE}/clamd.pid"
+
+case "${FAKE_SCAN_EXIT:-0}" in
+	0)
+		printf '%s\n' \
+			"${TEST_STATE}/work/clean-one.php: OK" \
+			"${TEST_STATE}/work/clean-two.php: OK"
+		;;
+	1)
+		printf '%s\n' \
+			"${TEST_STATE}/work/clean.php: OK" \
+			"${TEST_STATE}/work/infected.php: Eicar-Test-Signature FOUND"
+		;;
+	2)
+		printf '%s\n' \
+			"${TEST_STATE}/work/unreadable.php: Permission denied. ERROR"
+		;;
+esac
+
 trap 'touch "${TEST_STATE}/clamd.stopped"; exit 0' TERM INT
 while :; do
 	sleep 0.05
@@ -106,8 +124,7 @@ done
 case "${FAKE_SCAN_EXIT:-0}" in
 	0)
 		printf '%s\n' \
-			"${TEST_STATE}/work/clean-one.php: OK" \
-			"${TEST_STATE}/work/clean-two.php: OK" \
+			"${TEST_STATE}/work: OK" \
 			'' \
 			'----------- SCAN SUMMARY -----------' \
 			'Infected files: 0' \
@@ -115,7 +132,6 @@ case "${FAKE_SCAN_EXIT:-0}" in
 		;;
 	1)
 		printf '%s\n' \
-			"${TEST_STATE}/work/clean.php: OK" \
 			"${TEST_STATE}/work/infected.php: Eicar-Test-Signature FOUND" \
 			'' \
 			'----------- SCAN SUMMARY -----------' \
@@ -180,6 +196,7 @@ run_scan_case() {
 run_scan_case clean 0 success 0
 assert_file_contains "${TEST_DIR}/clean/clamdscan.calls" '--multiscan' 'clean scan requests multiscan'
 assert_file_not_contains "${TEST_DIR}/clean/clamdscan.calls" '--infected' 'clean scan captures clean results for counting'
+assert_file_contains "${TEST_DIR}/clean/clamd.conf" '^LogClean yes$' 'clean file results are enabled in the private daemon log'
 assert_file_contains "${TEST_DIR}/clean/clamd.conf" 'ExcludePath .*\\.composer-cache' 'composer cache exclusion is configured for clamd'
 assert_file_contains "${TEST_DIR}/clean/clamd.conf" 'ExcludePath .*node_modules_cache' 'node modules cache exclusion is configured for clamd'
 assert_file_contains "${TEST_DIR}/clean/output" 'Scanned files: 2' 'clean scan reports the scanned file count'

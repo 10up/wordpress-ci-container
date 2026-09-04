@@ -68,6 +68,7 @@ LocalSocket ${runtime_dir}/clamd.sock
 FixStaleSocket yes
 DatabaseDirectory ${database_dir}
 Foreground yes
+LogClean yes
 PidFile ${runtime_dir}/clamd.pid
 ExcludePath (^|/)\.composer-cache(/|$)
 ExcludePath (^|/)node_modules_cache(/|$)
@@ -108,7 +109,7 @@ scanned_files="$(
 	awk '
 		/: OK$/ || / FOUND$/ { count++ }
 		END { print count + 0 }
-	' "${scan_report}"
+	' "${clamd_log}"
 )"
 
 awk -v scanned_files="${scanned_files}" '
