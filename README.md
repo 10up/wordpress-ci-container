@@ -25,7 +25,7 @@
 - terminus
 - yamllint
 
-Node and npm are managed by the `build/install-node.sh` script. The only version installed by default will be the `lts` version. 
+Node and npm are managed by the `build/install-node.sh` script. The three latest LTS versions of Node are installed (resolved at build time via nvm's `lts/-2`, `lts/-1` and `lts/*` aliases), and the newest LTS is the default. Because images are rebuilt weekly, the set rolls forward automatically when a new Node line enters LTS. The number of LTS versions can be changed with the `NODE_LTS_COUNT` build argument.
 
 ## Customize Package and Tool Configurations
 
@@ -111,7 +111,7 @@ This will enable detailed logs in php-syntax checking for debugging, trading off
 
 ## Node Version
 
-For convenience, `nvm` is installed to easily manage the node version in the CI container. To install a different node version from CI just add a step to execute the command: `nvm install <version>`; you can also execute the command from within a build script.
+For convenience, `nvm` is installed to easily manage the node version in the CI container. The three latest LTS versions are preinstalled, so switching between them is instant with `nvm use <version>` (e.g. `nvm use 22`). To install any other node version from CI just add a step to execute the command: `nvm install <version>`; you can also execute the command from within a build script.
 
 [![Support Level](https://img.shields.io/badge/support-stable-blue.svg)](#support-level)
 
