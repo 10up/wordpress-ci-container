@@ -58,10 +58,6 @@ php --version
 composer --version
 node --version
 npm --version
-grunt --version
-gulp --version
-bower --version
-yarn --version
 php /usr/local/bin/wp-cli.phar --allow-root --version
 set +x
 

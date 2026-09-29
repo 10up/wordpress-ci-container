@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents working with code in this repository.
 
 **Keep this file current.** Any change to the Dockerfile, build/CI scripts, workflow matrix, env-var contract, or tests must be reflected here in the same change.
 
@@ -35,7 +35,7 @@ shellcheck scripts/* build/*.sh entrypoint.sh tests/*.sh
 - `build/install-wpcli.sh` installs `/usr/local/bin/wp-cli.phar`. `wp` exists only as a `.bashrc` alias (`php wp-cli.phar --allow-root`), not as a binary. Bash doesn't expand aliases in non-interactive shells, so `bash -c 'wp ...'` fails with "command not found" even though `BASH_ENV` loads `.bashrc`.
 - `build/install-node.sh [count]` installs nvm's relative aliases oldest first: `lts/-2`, `lts/-1`, then `lts/*`. It resolves them at build time, so the weekly no-cache rebuild rolls the set forward automatically when a new line goes LTS (versions get dropped the same way). It rejects a count that isn't a positive integer. Keeping 3 is a deliberate choice, even when the oldest line is past EOL (e.g. Node 20 until 26 goes LTS). The Dockerfile then runs `nvm alias default 'lts/*'`. Pipelines switch with `nvm use <major>` or run `nvm install <v>` for anything else.
 
-**Runtime (`entrypoint.sh`, POSIX sh)**: sources nvm, then applies optional env vars: `PRIVATE_KEY`/`PUBLIC_KEY` go to `/root/.ssh/id_rsa{,.pub}`, `TERMINUS_TOKEN` runs a terminus login, `GIT_USER_NAME`/`GIT_USER_EMAIL` set git global config, `COMPOSER_CONFIG` runs `composer config -g`, and `BUILD_CACHE_DIR` points the composer and npm caches at `$BUILD_CACHE_DIR/.composer-cache` and `$BUILD_CACHE_DIR/node_modules_cache` (for GitLab: `${CI_PROJECT_DIR}`). It then prints tool versions and `exec "$@"`. The version printout still calls grunt/gulp/bower/yarn, which were removed from the image, so those lines print "not found". This is harmless because the script has no `set -e`.
+**Runtime (`entrypoint.sh`, POSIX sh)**: sources nvm, then applies optional env vars: `PRIVATE_KEY`/`PUBLIC_KEY` go to `/root/.ssh/id_rsa{,.pub}`, `TERMINUS_TOKEN` runs a terminus login, `GIT_USER_NAME`/`GIT_USER_EMAIL` set git global config, `COMPOSER_CONFIG` runs `composer config -g`, and `BUILD_CACHE_DIR` points the composer and npm caches at `$BUILD_CACHE_DIR/.composer-cache` and `$BUILD_CACHE_DIR/node_modules_cache` (for GitLab: `${CI_PROJECT_DIR}`). It then prints the versions of php, composer, node, npm and wp-cli, and runs `exec "$@"`. The script has no `set -e`, so a missing tool in that printout only logs "not found". When removing a tool from the image, also remove its version line here.
 
 **CI scripts (`scripts/`, extensionless, copied to `/custom-scripts`)**:
 - `all-scripts` *sources* (does not execute) every top-level `/custom-scripts/*.sh` (user-added), then `php-syntax`, then `virus-scan`, all under `set -euo pipefail`. Because they are sourced, an `exit` in any of them ends the whole run, and `virus-scan` always exits. It must stay last.
@@ -53,7 +53,3 @@ shellcheck scripts/* build/*.sh entrypoint.sh tests/*.sh
 - The matrix is `base_container`. Each entry needs a matching "Set PHP X settings" step that sets `BUILD_TAGS` and `COMPOSER_VERSION`. PHP 7.4 uses Composer 1 and also owns the `latest` tag. All others use Composer 2. 7.4 and 8.0 use `-bullseye` images, because `php:7.4-bookworm` and `php:8.0-bookworm` don't exist. 8.1–8.4 use `-bookworm`.
 - **7.4 and 8.0 builds currently fail.** Debian bullseye support ended on Aug 31, 2026. `deb.debian.org` still lists `bullseye-security` packages, but the `.deb` files return 404, so the first `apt-get install` exits with code 100. The matrix has `fail-fast: false` set **temporarily**, so 8.1–8.4 finish and report their own results instead of being cancelled. Expect 7.4 and 8.0 to show red until they're dropped (pending a team decision). Remove `fail-fast: false` again once testing is done.
 - Images push to Docker Hub only from `trunk`. Branch builds only validate. Adding a PHP version means adding a matrix entry plus a settings step (the README has the template).
-
-## Known doc drift
-
-The README lists `azure-cli` (not installed), and spells glab as "glap". `.bowerrc` is a leftover and isn't used by the build.

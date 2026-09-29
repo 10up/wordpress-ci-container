@@ -10,7 +10,7 @@
 - curl
 - gh (Github CLI)
 - git
-- glap (Gitlab CLI)
+- glab (Gitlab CLI)
 - mysql-client
 - nodejs / npm, nvm for management
 - php
@@ -19,7 +19,6 @@
 - clamdscan
 - kubectl
 - aws-cli
-- azure-cli
 - docker-cli
 - wp-cli
 - terminus
