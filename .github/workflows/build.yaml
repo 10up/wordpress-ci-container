@@ -11,6 +11,8 @@ on:
 jobs:
   build_push_to_dockerhub:
     strategy:
+      # TEMPORARY: let each PHP version finish while 7.4/8.0 (bullseye) are broken
+      fail-fast: false
       matrix:
         base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bookworm", "php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
     runs-on: ubuntu-latest 

@@ -51,7 +51,7 @@ shellcheck scripts/* build/*.sh entrypoint.sh tests/*.sh
 
 - Runs on every push to any branch, plus a weekly rebuild (Sun 04:00 UTC) to pick up security updates. Builds are always `no-cache: true`, wrapped in a 3-attempt retry.
 - The matrix is `base_container`. Each entry needs a matching "Set PHP X settings" step that sets `BUILD_TAGS` and `COMPOSER_VERSION`. PHP 7.4 uses Composer 1 and also owns the `latest` tag. All others use Composer 2. 7.4 and 8.0 use `-bullseye` images, because `php:7.4-bookworm` and `php:8.0-bookworm` don't exist. 8.1–8.4 use `-bookworm`.
-- **7.4 and 8.0 builds currently fail.** Debian bullseye support ended on Aug 31, 2026. `deb.debian.org` still lists `bullseye-security` packages, but the `.deb` files return 404, so the first `apt-get install` exits with code 100. Because the matrix uses fail-fast, that failure cancels every other job, which makes the bookworm jobs look broken too. Dropping 7.4 and 8.0 is pending a team decision.
+- **7.4 and 8.0 builds currently fail.** Debian bullseye support ended on Aug 31, 2026. `deb.debian.org` still lists `bullseye-security` packages, but the `.deb` files return 404, so the first `apt-get install` exits with code 100. The matrix has `fail-fast: false` set **temporarily**, so 8.1–8.4 finish and report their own results instead of being cancelled. Expect 7.4 and 8.0 to show red until they're dropped (pending a team decision). Remove `fail-fast: false` again once testing is done.
 - Images push to Docker Hub only from `trunk`. Branch builds only validate. Adding a PHP version means adding a matrix entry plus a settings step (the README has the template).
 
 ## Known doc drift
