@@ -1,4 +1,4 @@
-# base image should be a PHP Debian container, such as php:7.4-buster
+# base image should be a PHP Debian container, such as php:8.4-bookworm
 ARG PHP_IMG
 FROM $PHP_IMG
 
@@ -96,7 +96,7 @@ RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" && \
 
 ## PHP extensions ##
 RUN docker-php-ext-install zip pdo pdo_mysql gd bcmath intl sockets mysqli exif soap
-RUN if [ ! -z "$(php --version | grep ^PHP | awk '{print $2}' | grep -v ^7 | grep -v "8.0")" ]; then pecl install opentelemetry && docker-php-ext-enable opentelemetry; fi
+RUN pecl install opentelemetry && docker-php-ext-enable opentelemetry
 
 #### Specific to building / deploying ####
 
@@ -126,7 +126,7 @@ RUN PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip -V && \
     PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -r /tmp/requirements.txt
 
 ## Composer ##
-ARG COMPOSER_VERSION 1
+ARG COMPOSER_VERSION=2
 
 ENV COMPOSER_ALLOW_SUPERUSER="1"
 ENV COMPOSER_HOME="/tmp"
