@@ -56,6 +56,12 @@ The variables `PRIVATE_KEY` and `PUBLIC_KEY` can be used to create a custom publ
 
 The Terminus token can be set via the `TERMINUS_TOKEN` variable, for use with the Pantheon managed hosting platform.
 
+## Supported PHP versions
+
+Images are built for PHP 8.2, 8.3 and 8.4 (tags `php-8.2`, `php-8.3`, `php-8.4`). The `latest` tag points to the newest version, currently PHP 8.4.
+
+PHP 7.4, 8.0 and 8.1 are **deprecated** and no longer built. Their existing tags (`php-7.4`, `php-8.0`, `php-8.1`) remain on Docker Hub, but they will not receive any further updates, including security updates. Projects using them should move to PHP 8.2 or newer.
+
 ## Updating PHP versions
 The versions of PHP in use by the container are defined in `.github/workflows/build.yaml`:
 
@@ -64,7 +70,7 @@ jobs:
   build_push_to_dockerhub:
     strategy:
       matrix:
-        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bookworm", "php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
+        base_container: ["php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
 
 ```
 Update steps: 
@@ -78,8 +84,9 @@ Update steps:
           echo "BUILD_TAGS=10up/wordpress-ci:php-<VERSION>" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 ```
-3. Push changes to working branch to trigger the build of the new image. *NOTE:* This will not push it to the registry.
-4. Create a PR and tag one of the maintainers. The image will become available once it is merged into `trunk` and the actions complete.
+3. If the new version is the newest one, move `10up/wordpress-ci:latest` from the previous newest version's `BUILD_TAGS` to the new version's.
+4. Push changes to working branch to trigger the build of the new image. *NOTE:* This will not push it to the registry.
+5. Create a PR and tag one of the maintainers. The image will become available once it is merged into `trunk` and the actions complete.
 
 
 
