@@ -110,10 +110,11 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | b
 ENV CYPRESS_CACHE_FOLDER="/tmp/cypress/cache"
 RUN mkdir -p ${CYPRESS_CACHE_FOLDER} && chmod 777 ${CYPRESS_CACHE_FOLDER}
 
-ARG NODE_VERSION=24
+# Install the latest N LTS lines of node; the newest is the default
+ARG NODE_LTS_COUNT=3
 COPY build/install-node.sh /tmp/install-node.sh
 RUN chmod +x /tmp/install-node.sh && \
-    /tmp/install-node.sh "--lts" && \
+    /tmp/install-node.sh "${NODE_LTS_COUNT}" && \
     . "$NVM_DIR/nvm.sh" && \
     nvm alias default 'lts/*'
 
