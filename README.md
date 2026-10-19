@@ -10,7 +10,7 @@
 - curl
 - gh (Github CLI)
 - git
-- glap (Gitlab CLI)
+- glab (Gitlab CLI)
 - mysql-client
 - nodejs / npm, nvm for management
 - php
@@ -19,13 +19,12 @@
 - clamdscan
 - kubectl
 - aws-cli
-- azure-cli
 - docker-cli
 - wp-cli
 - terminus
 - yamllint
 
-Node and npm are managed by the `build/install-node.sh` script. The only version installed by default will be the `lts` version. 
+Node and npm are managed by the `build/install-node.sh` script. The three latest LTS versions of Node are installed (resolved at build time via nvm's `lts/-2`, `lts/-1` and `lts/*` aliases), and the newest LTS is the default. Because images are rebuilt weekly, the set rolls forward automatically when a new Node line enters LTS. The number of LTS versions can be changed with the `NODE_LTS_COUNT` build argument.
 
 ## Customize Package and Tool Configurations
 
@@ -57,6 +56,12 @@ The variables `PRIVATE_KEY` and `PUBLIC_KEY` can be used to create a custom publ
 
 The Terminus token can be set via the `TERMINUS_TOKEN` variable, for use with the Pantheon managed hosting platform.
 
+## Supported PHP versions
+
+Images are built for PHP 8.2, 8.3 and 8.4 (tags `php-8.2`, `php-8.3`, `php-8.4`). The `latest` tag points to the newest version, currently PHP 8.4.
+
+PHP 7.4, 8.0 and 8.1 are **deprecated** and no longer built. Their existing tags (`php-7.4`, `php-8.0`, `php-8.1`) remain on Docker Hub, but they will not receive any further updates, including security updates. Projects using them should move to PHP 8.2 or newer.
+
 ## Updating PHP versions
 The versions of PHP in use by the container are defined in `.github/workflows/build.yaml`:
 
@@ -65,7 +70,7 @@ jobs:
   build_push_to_dockerhub:
     strategy:
       matrix:
-        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bullseye", "php:8.3-bullseye", "php:8.4-bullseye"]
+        base_container: ["php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
 
 ```
 Update steps: 
@@ -79,8 +84,9 @@ Update steps:
           echo "BUILD_TAGS=10up/wordpress-ci:php-<VERSION>" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 ```
-3. Push changes to working branch to trigger the build of the new image. *NOTE:* This will not push it to the registry.
-4. Create a PR and tag one of the maintainers. The image will become available once it is merged into `trunk` and the actions complete.
+3. If the new version is the newest one, move `10up/wordpress-ci:latest` from the previous newest version's `BUILD_TAGS` to the new version's.
+4. Push changes to working branch to trigger the build of the new image. *NOTE:* This will not push it to the registry.
+5. Create a PR and tag one of the maintainers. The image will become available once it is merged into `trunk` and the actions complete.
 
 
 
@@ -111,7 +117,7 @@ This will enable detailed logs in php-syntax checking for debugging, trading off
 
 ## Node Version
 
-For convenience, `nvm` is installed to easily manage the node version in the CI container. To install a different node version from CI just add a step to execute the command: `nvm install <version>`; you can also execute the command from within a build script.
+For convenience, `nvm` is installed to easily manage the node version in the CI container. The three latest LTS versions are preinstalled, so switching between them is instant with `nvm use <version>` (e.g. `nvm use 22`). To install any other node version from CI just add a step to execute the command: `nvm install <version>`; you can also execute the command from within a build script.
 
 [![Support Level](https://img.shields.io/badge/support-stable-blue.svg)](#support-level)
 

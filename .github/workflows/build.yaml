@@ -11,8 +11,10 @@ on:
 jobs:
   build_push_to_dockerhub:
     strategy:
+      # TEMPORARY: report each PHP version's result separately while testing; remove before merging
+      fail-fast: false
       matrix:
-        base_container: ["php:7.4-bullseye", "php:8.0-bullseye", "php:8.1-bullseye", "php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
+        base_container: ["php:8.2-bookworm", "php:8.3-bookworm", "php:8.4-bookworm"]
     runs-on: ubuntu-latest 
 
     steps:
@@ -21,27 +23,6 @@ jobs:
 
       ## Set environment variables for the build container by matrix
 
-      # 7.4 is the current "latest" default version and gets this extra tag
-      # upon EOL, this should move to 8.0
-      # 7.4 has already reached EoL, we can consider 8.0 as default version now
-      - name: Set PHP 7.4 settings
-        if: ${{ matrix.base_container == 'php:7.4-bullseye' }}
-        run: |
-          echo "BUILD_TAGS=10up/wordpress-ci:latest,10up/wordpress-ci:php-7.4" >> $GITHUB_ENV
-          echo "COMPOSER_VERSION=1" >> $GITHUB_ENV
-
-      - name: Set PHP 8.0 settings
-        if: ${{ matrix.base_container == 'php:8.0-bullseye' }}
-        run: |
-          echo "BUILD_TAGS=10up/wordpress-ci:php-8.0" >> $GITHUB_ENV
-          echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
-
-      - name: Set PHP 8.1 settings
-        if: ${{ matrix.base_container == 'php:8.1-bullseye' }}
-        run: |
-          echo "BUILD_TAGS=10up/wordpress-ci:php-8.1" >> $GITHUB_ENV
-          echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
-      
       - name: Set PHP 8.2 settings
         if: ${{ matrix.base_container == 'php:8.2-bookworm' }}
         run: |
@@ -54,10 +35,11 @@ jobs:
           echo "BUILD_TAGS=10up/wordpress-ci:php-8.3" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 
+      # The newest PHP version also gets the "latest" tag; move it when adding a newer version
       - name: Set PHP 8.4 settings
         if: ${{ matrix.base_container == 'php:8.4-bookworm' }}
         run: |
-          echo "BUILD_TAGS=10up/wordpress-ci:php-8.4" >> $GITHUB_ENV
+          echo "BUILD_TAGS=10up/wordpress-ci:latest,10up/wordpress-ci:php-8.4" >> $GITHUB_ENV
           echo "COMPOSER_VERSION=2" >> $GITHUB_ENV
 
       ## GitHub Action validation testing before starting workflow ##
